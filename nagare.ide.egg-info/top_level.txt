@@ -1,3 +1,0 @@
-nagare
-static
-conf
