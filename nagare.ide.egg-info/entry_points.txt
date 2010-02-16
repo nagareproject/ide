@@ -1,0 +1,7 @@
+
+      [nagare.applications]
+      ide = nagare.ide.app:app
+
+      [nagare.admin]
+      sources = nagare.ide.admin:Admin
+      
