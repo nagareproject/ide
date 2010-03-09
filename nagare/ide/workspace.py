@@ -9,6 +9,8 @@
 
 """Nagare IDE interface"""
 
+from __future__ import with_statement
+
 import os
 
 import webob
@@ -91,7 +93,7 @@ def render(self, h, comp, *args):
         with h.div(id='content'):
             h << h.div(id='tabview', class_='yui_navset')
             h << component.Component(bespin_editor.Editor(self.editor_config))
-            
+
         h << h.script('var tabview = setupTabView("tabview")')
 
         # The left panel with the applications and packages tree

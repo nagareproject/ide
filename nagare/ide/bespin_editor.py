@@ -9,6 +9,8 @@
 
 """Create a Bespin editor widget into a ``<div>``"""
 
+from __future__ import with_statement
+
 from nagare import presentation
 
 class Editor:

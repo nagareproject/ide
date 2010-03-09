@@ -9,6 +9,8 @@
 
 """Section of Nagare administrative interface"""
 
+from __future__ import with_statement
+
 from nagare import presentation
 
 class Admin(object):

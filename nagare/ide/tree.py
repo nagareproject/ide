@@ -9,6 +9,8 @@
 
 """Tree view of the source files and exceptions"""
 
+from __future__ import with_statement
+
 import os
 
 import pkg_resources
