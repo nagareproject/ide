@@ -563,11 +563,11 @@ dojo.declare("bespin.editor.UI", null, {
 
             // happens first, because scroll bars are not relative to scroll position
             if ((this.xscrollbar.rect.contains(point)) || (this.yscrollbar.rect.contains(point))) return;
-            
+
             // now, compensate for scroll position.
             point.x += Math.abs(this.xoffset);
             point.y += Math.abs(this.yoffset);
-            
+
             this.selectMouseDownPos = this.convertClientPointToCursorPoint(point);
         }
     },
@@ -1948,6 +1948,7 @@ dojo.declare("bespin.editor.API", null, {
     },
 
     basicView: function() {
+        return;
         this.cursorManager.moveCursor({row: 0, col: 0});
         this.setSelection(undefined);
         this.ui.yoffset = 0;
