@@ -26,7 +26,6 @@ class Editor:
 def render(self, h, *args):
     h.head.javascript_url('js/dojo/dojo.js')
     h.head.javascript_url('js/bespin/editor/embed.js')
-    h.head.javascript_url('js/th.compressed.js')
 
     h.head.javascript_url('js/bespin/page/editor/init.js')
     h.head.javascript_url('js/bespin/client/server.js')
