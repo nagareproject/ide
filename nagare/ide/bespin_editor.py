@@ -47,6 +47,6 @@ def render(self, h, *args):
             %s
         });''' % '\n'.join(settings)
 
-        h << '''bespin.subscribe("editor:openfile:opensuccess", onFileOpened);'''
+        h << '''bespin.subscribe("editor:openfile:opensuccess", on_file_opened);'''
 
     return h.root

@@ -94,7 +94,7 @@ def render(self, h, comp, *args):
             h << h.div(id='tabview', class_='yui_navset')
             h << component.Component(bespin_editor.Editor(self.editor_config))
 
-        h << h.script('var tabview = setupTabView("tabview")')
+        h << h.script('var tabview = setup_tab_view("tabview")')
 
         # The left panel with the applications and packages tree
         h << h.div(self.directories_view, id='tree', style='padding: 2px')

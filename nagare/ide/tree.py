@@ -158,7 +158,7 @@ def render(self, h, *args):
 
         h << h.div(id='exceptions', syle='display: none ')
         h << h.script('''
-            var treeview = setupTreeView("treeview");
+            var treeview = setup_tree_view("treeview");
             exceptions_tabs(%s);    // Open the exceptions tabs
             ''' % ajax.py2js(apps, h))
 
