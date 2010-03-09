@@ -24,7 +24,7 @@ setup(
       include_package_data = True,
       package_data = {'' : ['*.cfg']},
       zip_safe = False,
-      install_requires = ('nagare',),
+      install_requires = ('Pygments', 'nagare'),
       namespace_packages = ('nagare', 'nagare.ide',),
       entry_points = """
       [nagare.applications]
