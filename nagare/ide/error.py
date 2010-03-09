@@ -11,6 +11,8 @@
 
 """Frames and exceptions components"""
 
+from __future__ import with_statement
+
 import sys
 import os
 import linecache
@@ -167,7 +169,7 @@ class IDEFrame(object):
     """
     def __init__(self, tb):
         """Initialization
-        
+
         In:
           - ``frame`` -- ``tb.tb_frame`` is the Python frame
         """
@@ -266,9 +268,6 @@ class IDEException(object):
 
 @presentation.render_for(IDEException)
 def render(self, h, comp, *args):
-    # In-line inclusion of the Pygments CSS classes
-    h.head.css('pygments', HtmlFormatter().get_style_defs('.highlight'))
-
     with h.div:
         # Exception informations
         with h.div(class_='tab_info'):
