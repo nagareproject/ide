@@ -357,6 +357,30 @@ YAHOO.extend(YAHOO.nagare.EditableSourceTab, YAHOO.nagare.BaseTab, {
 
 });
 
+// ----------------------------------------------------------------------------
+
+YAHOO.nagare.ReadOnlySourceTab = function(info) {
+    // Initialization
+    //
+    // In:
+    //   - ``info.pathname`` -- complete pathname of the source file on the server
+    //   - ``info.filename`` -- filename part of the pathname
+    info.label = '<span title="' + info.pathname + '">' + info.filename + '</span>'
+
+    id = 'id'+Math.ceil(Math.random()*1000000000);
+    info.content =  '<div class=".highlight" id="' + id + '"/>'
+
+    YAHOO.nagare.ReadOnlySourceTab.superclass.constructor.call(this, info);
+
+    this.pathname = info.pathname;
+
+    nagare_getAndEval('source/at/Nagare'+info.pathname+'?id='+id);
+}
+
+YAHOO.extend(YAHOO.nagare.ReadOnlySourceTab, YAHOO.nagare.BaseTab, {})
+
+// ----------------------------------------------------------------------------
+
 function on_file_opened(e) {
     // Function called after the Bespin editor has fetched a source from the server
     var tab = tabview.get('activeTab');
@@ -367,6 +391,10 @@ function on_file_opened(e) {
             tab.set_line_number(tab.line_number);
         }
     }
+}
+
+function is_edition_supported() {
+    return !!document.createElement('canvas').getContext;
 }
 
 function open_tab(data) {
@@ -390,7 +418,11 @@ function open_tab(data) {
 
         if(uid_parts[0] == 'source') {
             // Create a Python source tab
-            tab = new YAHOO.nagare.EditableSourceTab({ uid: data.uid, filename: data.filename, pathname: uid_parts[1] });
+            if(is_edition_supported()) {
+                tab = new YAHOO.nagare.EditableSourceTab({ uid: data.uid, filename: data.filename, pathname: uid_parts[1] });
+            } else {
+                tab = new YAHOO.nagare.ReadOnlySourceTab({ uid: data.uid, filename: data.filename, pathname: uid_parts[1] });
+            }
         }
 
         if(uid_parts[0] == 'exception') {
@@ -474,7 +506,7 @@ function add_log(msg) {
     // Add a new log entry
     //
     // In:
-    //   - ``msg`` -- a JSON list of the of log parts
+    //   - ``msg`` -- a JSON list of the of entry parts
     var data = YAHOO.lang.JSON.parse(msg);
 
     var tr = document.createElement('tr');

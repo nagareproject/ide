@@ -15,6 +15,10 @@ import os
 
 import webob
 
+from pygments import highlight
+from pygments.lexers import guess_lexer_for_filename
+from pygments.formatters import HtmlFormatter
+
 from nagare import presentation, component, serializer, ajax, comet
 from nagare.namespaces import xhtml
 
@@ -68,6 +72,9 @@ def render(self, h, comp, *args):
     h.head.css_url(YUI_PREFIX+'/assets/skins/sam/layout.css')
     h.head.css_url(YUI_PREFIX+'/container/assets/skins/sam/container.css')
     h.head.css_url(YUI_PREFIX+'/button/assets/skins/sam/button.css')
+
+    h.head.css('pygments', HtmlFormatter(nobackground=True).get_style_defs('.highlight'))
+    h.head.css('pygments_linenos', '.linenos pre { color: #aaa; margin-right: 10px }')
 
     h.head.javascript_url(YUI_PREFIX+'/yahoo-dom-event/yahoo-dom-event.js')
     h.head.javascript_url(YUI_PREFIX+'/dragdrop/dragdrop-min.js')
@@ -152,7 +159,7 @@ def render(self, h, comp, *args):
     """The view where an application is redirected when an error occurs"""
 
     # Get the javascript 'reload' view
-    view = comp.render(xhtml.AsyncRenderer(), model='reload')
+    view = comp.render(xhtml.AsyncRenderer(h), model='reload')
     js = serializer.serialize(view, h.request, h.response, False) #.encode('utf-8')
 
     # Push it to the IDE
@@ -232,9 +239,9 @@ def init(self, url, comp, *args):
 
 @presentation.init_for(WorkSpace, "(http_method == 'GET') and (url[0] == 'register') and (url[1] == 'userinfo')")
 def init(self, url, comp, http_method, request):
-    exc = webob.exc.HTTPOk()
-    exc.body = '{}'
-    raise exc
+    response = webob.exc.HTTPOk()
+    response.body = '{}'
+    raise response
 
 @presentation.init_for(WorkSpace, "(http_method == 'PUT') and (url[0] == 'file') and (url[1] == 'at')")
 def init(self, url, comp, http_method, request):
@@ -246,13 +253,13 @@ def init(self, url, comp, http_method, request):
 
     raise webob.exc.HTTPOk()
 
-@presentation.init_for(WorkSpace, "(http_method == 'GET') and (url[0] == 'file') and (url[1] == 'at')")
+@presentation.init_for(WorkSpace, "(http_method == 'GET') and (url[0] == 'file') and (url[1] == 'at') and (url[2] == 'Nagare')")
 def init(self, url, comp, http_method, request):
     """Reading a file"""
     url = url[2:]
 
-    exc = webob.exc.HTTPOk()
-    exc.empty_body = True
+    response = webob.exc.HTTPOk()
+    response.empty_body = True
 
     if url[0] == 'BespinSettings':
         raise exc
@@ -261,6 +268,24 @@ def init(self, url, comp, http_method, request):
 
     if os.path.isfile(filename):
         with open(os.path.sep+filename, 'r') as f:
-            exc.body = f.read()
+            response.body = f.read()
 
-    raise exc
+    raise response
+
+@presentation.init_for(WorkSpace, "(http_method == 'GET') and (url[0] == 'source') and (url[1] == 'at') and (url[2] == 'Nagare')")
+def init(self, url, comp, http_method, request):
+    filename = os.path.sep+os.path.join(*url[3:])
+    id = request.params['id']
+
+    lexer = guess_lexer_for_filename(filename, '')
+    formatter = HtmlFormatter(linenos='table')
+
+    with open(filename) as f:
+        source = highlight(f.read(), lexer, formatter)
+
+    response = webob.exc.HTTPOk()
+
+    response.content_type = 'text/plain'
+    response.unicode_body = u'nagare_updateNode("%s", %s);' % (id, ajax.py2js(source, None))
+
+    raise response
