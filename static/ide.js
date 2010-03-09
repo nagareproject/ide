@@ -467,17 +467,31 @@ function exceptions_tabs(exceptions) {
 
 // ----------------------------------------------------------------------------
 
+// Log functions
+// -------------
+
 function add_log(msg) {
-    var line = document.createElement('tr');
+    // Add a new log entry
+    //
+    // In:
+    //   - ``msg`` -- a JSON list of the of log parts
+    var data = YAHOO.lang.JSON.parse(msg);
+
+    var tr = document.createElement('tr');
     var tbody = document.getElementById('logs').children[1];
 
+    // Insert the new entry at the beginning of the log
     if(!tbody.children.length) {
-        tbody.appendChild(line);
+        tbody.appendChild(tr);
     } else {
-        tbody.insertBefore(line, tbody.firstChild)
+        tbody.insertBefore(tr, tbody.firstChild);
     }
 
-    line.innerHTML = msg;
+    for(var i=0; i<data.length; i++) {
+        var td = document.createElement('td');
+        td.appendChild(document.createTextNode(data[i]));
+        tr.appendChild(td);
+    }
 
     // Keep only the 10 newest entries
     while(tbody.children.length > 10) {
