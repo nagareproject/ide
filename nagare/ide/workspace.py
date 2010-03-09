@@ -88,6 +88,8 @@ def render(self, h, comp, *args):
     # Dummy asynchronous element to force the inclusion of the Nagare Ajax manager
     xhtml.AsyncRenderer(h).a.action(lambda: None)
 
+    multiprocess = h.request.environ['wsgi.multiprocess']
+
     with h.body(class_='yui-skin-sam'):
         # The central panel with the tabs and the Bespin editor
         with h.div(id='content'):
@@ -108,22 +110,30 @@ def render(self, h, comp, *args):
 
         with h.script:
             h << '''
-                var layout = new YAHOO.widget.Layout({
+                 var layout = new YAHOO.widget.Layout({
                     units: [
                         { position: 'left', body: 'tree', width: '300px', header: 'Applications', collapse: true, resize: true, scroll: true, gutter: '0 5 0 0' },
                         { position: 'center', body: 'content', scroll: true },
+                 '''
+
+            if not multiprocess:
+                 h << '''
                         { position: 'bottom', body: 'logs', height: '300px', header: 'Logs', collapse: true, resize: true, scroll: true, gutter: '5 0 0 0' }
+                      '''
+
+            h << '''
                     ]}).render();
 
-                // Function to resize the Bespin editor when the central panel is resized
-                layout.getUnitByPosition('center').addListener('resize', function(e, p) {
-                    var tab = tabview.get('activeTab');
-                    if(tab) { tab.onResize(p) }
-                }, layout.getUnitByPosition('center'), true);
-                '''
+                 // Function to resize the Bespin editor when the central panel is resized
+                 layout.getUnitByPosition('center').addListener('resize', function(e, p) {
+                     var tab = tabview.get('activeTab');
+                     if(tab) { tab.onResize(p) }
+                 }, layout.getUnitByPosition('center'), true);
+                 '''
 
-        # The Comet push channel
-        h << component.Component(comet.channels[CHANNEL_ID])
+        if not multiprocess:
+            # The Comet push channel
+            h << component.Component(comet.channels[CHANNEL_ID])
 
     h.head.css_url('ide.css')
 

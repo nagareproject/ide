@@ -140,7 +140,10 @@ def render(self, h, comp, *args):
 
 @presentation.render_for(Tree, model='raw')
 def render(self, h, *args):
-    apps = sorted([app.name for app in self.get_applications() if app.last_exception])
+    if h.request.environ['wsgi.multiprocess']:
+        apps = []
+    else:
+        apps = sorted([app.name for app in self.get_applications() if app.last_exception])
 
     with h.div:
         h << h.div(h.a('Reload', href='#', onclick='return nagare_getAndEval("reload")'), style='text-align: center', class_='tab_info')
