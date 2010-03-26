@@ -96,7 +96,7 @@ YAHOO.nagare.ExceptionTab = function(info) {
     div.setAttribute('id', 'exception');
     document.getElementById('exceptions').appendChild(div);
 
-    // Ajax request to retreive the exception content
+    // Ajax request to retrieve the exception content
     nagare_getAndEval('exception_tab/'+info.app);
 
     info.label = 'Exception in <i>' + info.app + '</i>'
@@ -354,7 +354,6 @@ YAHOO.extend(YAHOO.nagare.EditableSourceTab, YAHOO.nagare.BaseTab, {
         //   - ``lineno`` -- the line number
         bespin.get('editor').moveAndCenter(lineno);
     }
-
 });
 
 // ----------------------------------------------------------------------------
@@ -371,13 +370,17 @@ YAHOO.nagare.ReadOnlySourceTab = function(info) {
     info.content =  '<div class=".highlight" id="' + id + '"/>'
 
     YAHOO.nagare.ReadOnlySourceTab.superclass.constructor.call(this, info);
-
-    this.pathname = info.pathname;
-
-    nagare_getAndEval('source/at/Nagare'+info.pathname+'?id='+id);
+    nagare_getAndEval('source/at/Nagare/'+info.pathname+'?id='+id);
 }
 
-YAHOO.extend(YAHOO.nagare.ReadOnlySourceTab, YAHOO.nagare.BaseTab, {})
+YAHOO.extend(YAHOO.nagare.ReadOnlySourceTab, YAHOO.nagare.BaseTab, {
+    set_line_number: function(lineno) {
+        // Go to line
+        //
+        // In:
+        //   - ``lineno`` -- the line number
+    }
+})
 
 // ----------------------------------------------------------------------------
 
@@ -528,14 +531,5 @@ function add_log(msg) {
     // Keep only the 10 newest entries
     while(tbody.children.length > 10) {
         tbody.removeChild(tbody.children[10]);
-    }
-}
-
-// ----------------------------------------------------------------------------
-//
-// Dispatch the messages pushed by the server
-function dispatch(msg) {
-    if(msg.match('^nagare_updateNode')) {
-        eval(msg);
     }
 }
