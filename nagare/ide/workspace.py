@@ -246,9 +246,11 @@ def init(self, url, comp, http_method, request):
 @presentation.init_for(WorkSpace, "(http_method == 'PUT') and (url[0] == 'file') and (url[1] == 'at')")
 def init(self, url, comp, http_method, request):
     """Writing a file"""
-    filename = os.path.join(*url[3:])
+    filename = os.path.sep.join(url[3:])
+    if not os.path.isabs(filename):
+        filename = os.path.sep + filename
 
-    with open(os.path.sep+filename, 'w') as f:
+    with open(filename, 'w') as f:
         f.write(request.body)
 
     raise webob.exc.HTTPOk()
@@ -264,17 +266,22 @@ def init(self, url, comp, http_method, request):
     if url[0] == 'BespinSettings':
         raise exc
 
-    filename = os.path.sep+os.path.join(*url[1:])
+    filename = os.path.sep.join(url[1:])
+    if not os.path.isabs(filename):
+        filename = os.path.sep + filename
 
     if os.path.isfile(filename):
-        with open(os.path.sep+filename, 'r') as f:
+        with open(filename, 'r') as f:
             response.body = f.read()
 
     raise response
 
 @presentation.init_for(WorkSpace, "(http_method == 'GET') and (url[0] == 'source') and (url[1] == 'at') and (url[2] == 'Nagare')")
 def init(self, url, comp, http_method, request):
-    filename = os.path.sep+os.path.join(*url[3:])
+    filename = os.path.sep.join(url[3:])
+    if not os.path.isabs(filename):
+        filename = os.path.sep + filename
+
     id = request.params['id']
 
     lexer = guess_lexer_for_filename(filename, '')

@@ -55,7 +55,7 @@ def render(self, h, *args):
                     h << [component.Component(Directory(os.path.basename(dir[0]), self.root, *dir)) for dir in self.directories]
 
                 if self.filenames:
-                    h << [h.li(filename, yuiConfig='{ "labelStyle": "ygtvlabel file", "uid" : "source@%s", "filename" : "%s" }' % (os.path.join(self.root, self.dirname, filename), filename)) for filename in self.filenames]
+                    h << [h.li(filename, yuiConfig='{ "labelStyle": "ygtvlabel file", "uid" : "source@%s", "filename" : "%s" }' % ('/'.join((self.root, self.dirname, filename)), filename)) for filename in self.filenames]
 
     return h.root
 
@@ -73,7 +73,7 @@ class Directories(object):
                          - path of the root
         """
         # Read and merge all the trees
-        self.roots = [(label, root, self.load_directories(root)) for (label, root) in roots]
+        self.roots = [(label, root.replace('\\', '/'), self.load_directories(root)) for (label, root) in roots]
 
     def load_directories(self, root, dirname=''):
         """Read a filesystem tree
