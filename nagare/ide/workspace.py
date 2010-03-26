@@ -159,11 +159,11 @@ def render(self, h, comp, *args):
     """The view where an application is redirected when an error occurs"""
 
     # Get the javascript 'reload' view
-    view = comp.render(xhtml.AsyncRenderer(h), model='reload')
+    view = comp.render(xhtml.AsyncRenderer(request=h.request, response=h.response), model='reload')
     js = serializer.serialize(view, h.request, h.response, False) #.encode('utf-8')
 
     # Push it to the IDE
-    comet.channels.send(CHANNEL_ID, js)
+    comet.channels.send(CHANNEL_ID, js+';')
 
     h.response.content_type = 'text/html'
 
