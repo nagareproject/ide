@@ -95,7 +95,7 @@ class WSGIApp(wsgi.WSGIApp):
                 app.on_exception = lambda request, response, name=app.name: self.on_app_exception(name)
 
         # Create the Comet push channel
-        comet.channels.create(CHANNEL_ID, 'eval', history_size=self.max_nb_logs)
+        comet.channels.create(CHANNEL_ID, 'eval')
 
     def get_applications(self):
         """Return the published application objects
