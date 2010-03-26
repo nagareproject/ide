@@ -102,6 +102,8 @@ dojo.provide("bespin.page.editor.init");
     //
     // Loads and configures the objects that the editor needs
     dojo.addOnLoad(function() {
+        if(!is_edition_supported()) { return }
+
         var editor = bespin.register('editor', new bespin.editor.API('editor'));
         var editSession = bespin.register('editSession', new bespin.client.session.EditSession(editor));
         var server = bespin.register('server', new bespin.client.Server());
@@ -122,7 +124,7 @@ dojo.provide("bespin.page.editor.init");
             bespin.get('editSession').setUserinfo(userinfo);
 
             bespin.register('settings', new bespin.client.settings.Core());
-            
+
             if (userinfo.serverCapabilities) {
                 var sc = userinfo.serverCapabilities;
                 bespin.register("serverCapabilities", sc.capabilities);
@@ -138,7 +140,7 @@ dojo.provide("bespin.page.editor.init");
                     re.call(dojo, plugin);
                 });
             }
-            
+
 
             bespin.publish("authenticated");
         };
@@ -157,7 +159,7 @@ dojo.provide("bespin.page.editor.init");
         // -- Deal with the project label (project, filename, dirty flag)
         statusScene = new ProjectStatusScene();
         bespin.publish("bespin:editor:initialized", {});
-        
+
     });
 
     // The object that understands how to render the project label scene

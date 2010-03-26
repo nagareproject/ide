@@ -29,10 +29,10 @@ def render(self, h, *args):
     h.head.javascript_url('js/dojo/dojo.js')
     h.head.javascript_url('js/bespin/editor/embed.js')
 
-    h.head.javascript_url('js/bespin/page/editor/init.js')
     h.head.javascript_url('js/bespin/client/server.js')
     h.head.javascript_url('js/bespin/client/session.js')
     h.head.javascript_url('js/bespin/client/filesystem.js')
+    h.head.javascript_url('js/bespin/page/editor/init.js')
 
     settings = ['settings.set("%s", "%s");' % t for t in self.settings.items()]
 
