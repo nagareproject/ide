@@ -22,7 +22,6 @@ class WSGIApp(wsgi.WSGIApp):
 
     spec = {
             'application' : {
-                'max_nb_logs' : 'integer(default=10)',
                 'nagare_sources' : 'boolean(default=False)'
             },
 
@@ -42,7 +41,6 @@ class WSGIApp(wsgi.WSGIApp):
         """
         super(WSGIApp, self).__init__(root_factory)
 
-        self.max_nb_logs = 10
         self.nagare_sources = False # Nagare core sources displayed or not
         self.publisher = None
         self.editor_config = {}     # The Bespin editor configuration
@@ -58,7 +56,6 @@ class WSGIApp(wsgi.WSGIApp):
         conf = configobj.ConfigObj(conf, configspec=configobj.ConfigObj(WSGIApp.spec))
         config.validate(config_filename, conf, error)
 
-        self.max_nb_logs = conf['application']['max_nb_logs']
         self.nagare_sources = conf['application']['nagare_sources']
         self.editor_config = dict([(k, str(v).lower() if isinstance(v, bool) else v) for (k, v) in conf['editor'].items()])
 
