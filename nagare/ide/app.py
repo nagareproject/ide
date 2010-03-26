@@ -14,6 +14,7 @@ import webob
 from nagare import component, wsgi, config, comet
 
 from nagare.ide import CHANNEL_ID, workspace
+import nagare.ide.log
 
 class WSGIApp(wsgi.WSGIApp):
     """The Nagare IDE application
@@ -68,7 +69,7 @@ class WSGIApp(wsgi.WSGIApp):
 
         Return:
           - a WebOb response object
-        """ 
+        """
         traceback.print_exc()
 
         return webob.exc.HTTPMovedPermanently(location='/'+self.name+'/exception/'+app_name)

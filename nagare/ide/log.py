@@ -20,3 +20,7 @@ class NagareHandler(logging.Handler):
         record.msg = record.msg.replace('"', r'\"')
 
         comet.channels.send(CHANNEL_ID, "add_log(%s);" % ajax.py2js(self.format(record)))
+
+# Hack for Python 2.5: before v2.6, the handler classes had to be defined
+# in the logging namespace
+logging.NagareIdeHandler = NagareHandler
