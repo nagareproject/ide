@@ -47,6 +47,8 @@
 .yui-nav li
 {
     display: inline-block;
+    *display: inline;
+    zoom: 1;
     border: 1px solid #aaaaaa;
     margin: 2px 2px 0px 2px;
     padding: 4px 8px 4px 8px;
