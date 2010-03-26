@@ -40,7 +40,7 @@ YAHOO.extend(YAHOO.nagare.BaseTab, YAHOO.widget.Tab, {
 
         // Put the focus on the associated entry in the treeview
         var node = treeview.getNodeByProperty('uid', this.uid);
-        if(node) {
+        if(node && node.getEl()) {
             node.focus();
         }
     },

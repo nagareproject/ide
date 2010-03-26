@@ -299,8 +299,10 @@ def render(self, h, comp, *args):
         var fn = YAHOO.util.Event.getListeners(frames.getEl(), "keydown")[0].fn;
         YAHOO.util.Event.removeListener(frames.getEl(), "keydown");
         YAHOO.util.Event.addListener(frames.getEl(), "keydown", function(e) {
-            if(e.target.tagName != "INPUT" && e.target.tagName != "TEXTAREA") { fn.call(frames, e); }
-            return false;
+            if(e.target) {
+                if(e.target.tagName != "INPUT" && e.target.tagName != "TEXTAREA") { fn.call(frames, e); }
+                return false;
+            }
         });
 
         ''')
