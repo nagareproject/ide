@@ -220,7 +220,7 @@ def render(self, h, comp, *args):
                                     pathname: "%(pathname)s",
                                     filename: "%(filename)s",
                                     lineno: %(lineno)d
-                          })''' % { 'pathname' : self.filename, 'filename' : os.path.basename(self.filename), 'lineno' : self.lineno }
+                          })''' % { 'pathname' : self.filename.replace('\\', '/'), 'filename' : os.path.basename(self.filename), 'lineno' : self.lineno }
                         h << h.a('edit', href='#', onclick=js) << NBSP
                         h << python_highlight(source, h, h.span)
 
