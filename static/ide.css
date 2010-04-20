@@ -216,6 +216,9 @@ tr.even {
   color: #555;
 }
 
+#frames .ygtvcontent {
+    width: 100%;
+}
 
 /*
   Logs panel style
