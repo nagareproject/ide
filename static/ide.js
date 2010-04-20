@@ -397,7 +397,7 @@ function on_file_opened(e) {
 }
 
 function is_edition_supported() {
-    return !!document.createElement('canvas').getContext;
+    return (YAHOO.env.ua.gecko || YAHOO.env.ua.webkit) && !!document.createElement('canvas').getContext;
 }
 
 function open_tab(data) {
