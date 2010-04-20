@@ -133,7 +133,6 @@ class Tree(object):
 def render(self, h, comp, *args):
     h.head.css_url(YUI_PREFIX+'/treeview/assets/skins/sam/treeview.css')
 
-    h.head.javascript_url(YUI_PREFIX+'/treeview/treeview-min.js')
     h.head.javascript_url(YUI_PREFIX+'/json/json-min.js')
 
     return comp.render(h, model='raw')

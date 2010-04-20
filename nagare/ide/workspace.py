@@ -84,6 +84,7 @@ def render(self, h, comp, *args):
     h.head.javascript_url(YUI_PREFIX+'/layout/layout-min.js')
 
     h.head.javascript_url(YUI_PREFIX+'/tabview/tabview-min.js')
+    h.head.javascript_url(YUI_PREFIX+'/treeview/treeview-min.js')
 
     h.head.javascript_url(YUI_PREFIX+'/button/button-min.js')
     h.head.javascript_url(YUI_PREFIX+'/container/container-min.js')
@@ -174,35 +175,35 @@ def render(self, h, comp, *args):
 
     h.head << h.head.title('Exception in application ' + self.app_in_error)
 
-    with h.div(class_='mybody'):
-        with h.div(id='myheader'):
-            h << h.a(h.img(src='/static/nagare/img/logo.gif'), id='logo', href='http://www.nagare.org/', title='Nagare home')
-            h << h.span('Exception', id='title')
+    with h.div:
+        with h.div(class_='mybody'):
+            with h.div(id='myheader'):
+                h << h.a(h.img(src='/static/nagare/img/logo.gif'), id='logo', href='http://www.nagare.org/', title='Nagare home')
+                h << h.span('Exception', id='title')
 
-        with h.div(id='main'):
-            with h.div(class_='warning'):
-                h << h.span('An exception occured in the application ', h.i('/'+self.app_in_error))
+            with h.div(id='main'):
+                with h.div(class_='warning'):
+                    h << h.span('An exception occured in the application ', h.i('/'+self.app_in_error))
 
-                with h.div:
-                    h << 'You can:'
+                    with h.div:
+                        h << 'You can:'
 
-                    with h.ul:
-                        h << h.li(h.a('Switch to the Nagare IDE window', href='#', target='nagare_ide_window'))
-                        h << h.li(h.a('Open a new IDE window', href=self.url, target='nagare_ide_window'))
-                        if request:
-                            h << h.li(h.a('Retry the last action', href=request.url))
-                        h << h.li(h.a('Open a new session in application /'+self.app_in_error, href='/'+self.app_in_error))
+                        with h.ul:
+                            h << h.li(h.a('Switch to the Nagare IDE window', href='#', target='nagare_ide_window'))
+                            h << h.li(h.a('Open a new IDE window', href=self.url, target='nagare_ide_window'))
+                            if request:
+                                h << h.li(h.a('Retry the last action', href=request.url))
+                            h << h.li(h.a('Open a new session in application /'+self.app_in_error, href='/'+self.app_in_error))
 
-            h << h.div(u'\N{Copyright Sign} ', h.a('Net-ng', href='http://www.net-ng.com'), u'\N{no-break space}', align='right')
+                h << h.div(u'\N{Copyright Sign} ', h.a('Net-ng', href='http://www.net-ng.com'), u'\N{no-break space}', align='right')
 
-    h << h.div(' ', class_='footer')
+        h << h.div(' ', class_='footer')
 
     return h.root
 
 @presentation.render_for(WorkSpace, model='app_exception')
 def render(self, h, comp, *args):
     """The view of an application exception"""
-
     (request, exception) = self.get_exception(self.app_in_error)
     if not request:
         return ''
@@ -234,8 +235,8 @@ def init(self, url, comp, *args):
 
 # -----------------------------------------------------------------------------
 
-# Bepin URLs
-# ----------
+# Bespin URLs
+# -----------
 
 @presentation.init_for(WorkSpace, "(http_method == 'GET') and (url[0] == 'register') and (url[1] == 'userinfo')")
 def init(self, url, comp, http_method, request):
@@ -278,11 +279,10 @@ def init(self, url, comp, http_method, request):
 
 @presentation.init_for(WorkSpace, "(http_method == 'GET') and (url[0] == 'source') and (url[1] == 'at') and (url[2] == 'Nagare')")
 def init(self, url, comp, http_method, request):
+    """Generating a syntax highlighted view of a file"""
     filename = os.path.sep.join(url[3:])
     if not os.path.isabs(filename):
         filename = os.path.sep + filename
-
-    id = request.params['id']
 
     lexer = guess_lexer_for_filename(filename, '')
     formatter = HtmlFormatter(linenos='table')
@@ -293,6 +293,6 @@ def init(self, url, comp, http_method, request):
     response = webob.exc.HTTPOk()
 
     response.content_type = 'text/plain'
-    response.unicode_body = u'nagare_updateNode("%s", %s);' % (id, ajax.py2js(source, None))
+    response.unicode_body = u'nagare_updateNode("%s", %s);' % (request.params['id'], ajax.py2js(source, None))
 
     raise response
