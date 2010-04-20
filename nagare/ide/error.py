@@ -134,7 +134,7 @@ def render(self, h, *args):
             with h.div(style='background-color: #f3f2f1'):
                 h << python_highlight(self.executions, h, h.pre(style='background-color: #f3f2f1; white-space: pre-wrap'), python_console=True)
 
-        with h.form:
+        with h.form(onsubmit="return false"):
             h << (h.input if self.short_input() else h.textarea)(style='width: 100%').action(pyexpr)
             h << h.br
             h << h.input(type='submit', value='Execute').action(lambda: self.execute(pyexpr()))
@@ -214,7 +214,8 @@ def render(self, h, comp, *args):
                         h << { 'class' : 'expanded' }
 
                     with h.span:
-                        js = '''open_tab({
+                        js = '''if(YAHOO.env.ua.ie) { YAHOO.util.Event.stopEvent(window.event); }
+                                open_tab({
                                     uid: "source@%(pathname)s",
                                     pathname: "%(pathname)s",
                                     filename: "%(filename)s",
