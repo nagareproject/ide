@@ -168,7 +168,12 @@ def render(self, h, comp, *args):
 
     h.response.content_type = 'text/html'
 
-    request = self.get_exception(self.app_in_error)[0]
+    (request, (exc_type, exc_value, tb)) = self.get_exception(self.app_in_error)
+
+    h.head.css('exception', '''
+        .exception { margin: 40px 40px 40px 0; background-color: #f3f2f1 }
+        .source { font-size: 70%; padding-left: 20px }
+    ''')
 
     h.head.css_url('/static/nagare/application.css')
     h.head.css_url('ide.css')
@@ -185,15 +190,23 @@ def render(self, h, comp, *args):
                 with h.div(class_='warning'):
                     h << h.span('An exception occured in the application ', h.i('/'+self.app_in_error))
 
-                    with h.div:
-                        h << 'You can:'
+                with h.div(class_='exception'):
+                    h << h.b(exc_type.__name__, ': ', str(exc_value))
 
-                        with h.ul:
-                            h << h.li(h.a('Switch to the Nagare IDE window', href='#', target='nagare_ide_window'))
-                            h << h.li(h.a('Open a new IDE window', href=self.url, target='nagare_ide_window'))
-                            if request:
-                                h << h.li(h.a('Retry the last action', href=request.url))
-                            h << h.li(h.a('Open a new session in application /'+self.app_in_error, href='/'+self.app_in_error))
+                    while tb.tb_next:
+                        tb = tb.tb_next
+
+                    h << component.Component(error.IDEFrame(tb), model='short')
+
+                with h.div:
+                    h << 'You can:'
+
+                    with h.ul:
+                        h << h.li(h.a('Switch to the Nagare IDE window', href='#', target='nagare_ide_window'))
+                        h << h.li(h.a('Open a new IDE window', href=self.url, target='nagare_ide_window'))
+                        if request:
+                            h << h.li(h.a('Retry the last action', href=request.url))
+                        h << h.li(h.a('Open a new session in application /'+self.app_in_error, href='/'+self.app_in_error))
 
                 h << h.div(u'\N{Copyright Sign} ', h.a('Net-ng', href='http://www.net-ng.com'), u'\N{no-break space}', align='right')
 

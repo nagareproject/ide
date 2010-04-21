@@ -135,7 +135,7 @@ def render(self, h, *args):
                 h << python_highlight(self.executions, h, h.pre(style='background-color: #f3f2f1; white-space: pre-wrap'), python_console=True)
 
         with h.form(onsubmit="return false"):
-            h << (h.input if self.short_input() else h.textarea)(style='width: 100%').action(pyexpr)
+            h << (h.input if self.short_input() else h.textarea(rows=4))(style='width: 100%').action(pyexpr)
             h << h.br
             h << h.input(type='submit', value='Execute').action(lambda: self.execute(pyexpr()))
 
@@ -233,6 +233,18 @@ def render(self, h, comp, *args):
                 with h.ul:
                     with h.li(yuiConfig='{ "not_expandable" : true }'):
                         h << h.div(self.context.render(xhtml.AsyncRenderer(h)))
+
+    return h.root
+
+@presentation.render_for(IDEFrame, model='short')
+def render(self, h, *args):
+    h.head.css('pygments', HtmlFormatter(nobackground=True).get_style_defs('.highlight'))
+
+    with h.div(title=self.filename or '?'):
+        h << h.span('Module ', style='color: #aaa') << (self.modname or '?') << h.span(' in ', style='color: #aaa') << (self.name or '?')
+
+        source = self.get_source_lines(2)
+        h << python_highlight(source, h, h.pre, hl_line=2, linenos='inline', linenostart=max(0, self.lineno-2))
 
     return h.root
 
