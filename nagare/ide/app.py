@@ -11,7 +11,8 @@ import configobj
 import traceback
 
 import webob
-from nagare import component, wsgi, config, comet
+from nagare import component, wsgi, config, comet, security
+from nagare.admin import util
 
 from nagare.ide import CHANNEL_ID, workspace
 import nagare.ide.log
@@ -33,6 +34,10 @@ class WSGIApp(wsgi.WSGIApp):
                 'highlightline' : 'boolean(default=False)',
                 'fontsize' : 'string(default="10")',
                 'tabsize' : 'string(default="4")'
+            },
+
+            'security' : {
+                'security_manager' : 'string(default=nagare.ide.security:SecurityManager)'
             }
            }
 
@@ -58,6 +63,12 @@ class WSGIApp(wsgi.WSGIApp):
 
         self.nagare_sources = conf['application']['nagare_sources']
         self.editor_config = dict([(k, str(v).lower() if isinstance(v, bool) else v) for (k, v) in conf['editor'].items()])
+
+        # Create and configure the security manager
+        # -----------------------------------------
+
+        self.security = util.load_object(conf['security']['security_manager'])[0]()
+        self.security.set_config(config_filename, conf['security'], error)
 
         super(WSGIApp, self).set_config(config_filename, conf, error)
 
@@ -93,6 +104,18 @@ class WSGIApp(wsgi.WSGIApp):
 
         # Create the Comet push channel
         comet.channels.create(CHANNEL_ID, 'eval')
+
+    def start_request(self, root, request, response):
+        """A new request is received, setup its dedicated environment
+
+        In:
+          - ``root`` -- the application root component
+          - ``request`` -- the web request object
+          - ``response`` -- the web response object
+        """
+        super(WSGIApp, self).start_request(root, request, response)
+
+        security.check_permissions(None)
 
     def get_applications(self):
         """Return the published application objects
