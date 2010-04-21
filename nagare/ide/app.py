@@ -73,7 +73,7 @@ class WSGIApp(wsgi.WSGIApp):
 
         super(WSGIApp, self).set_config(config_filename, conf, error)
 
-    def on_app_exception(self, app_name):
+    def on_app_exception(self, request, app_name):
         """Call when an exception occurs in a published application
 
         Return:
@@ -81,7 +81,14 @@ class WSGIApp(wsgi.WSGIApp):
         """
         traceback.print_exc()
 
-        return webob.exc.HTTPMovedPermanently(location='/'+self.name+'/exception/'+app_name)
+        location = '/'+self.name+'/exception/'+app_name
+
+        if request.is_xhr or ('_a' in request.params):
+            r = webob.exc.HTTPInternalServerError(headers={ 'X-Debug-URL' : location })
+        else:
+            r = webob.exc.HTTPMovedPermanently(location=location)
+
+        return r
 
     def set_publisher(self, publisher):
         """Register the publisher
@@ -101,7 +108,7 @@ class WSGIApp(wsgi.WSGIApp):
         # For each published application, overwrite its ``on_exception()`` hook
         for (app, _, _) in self.publisher.get_registered_applications():
             if app is not self:
-                app.on_exception = lambda request, response, name=app.name: self.on_app_exception(name)
+                app.on_exception = lambda request, response, name=app.name: self.on_app_exception(request, name)
 
         # Create the Comet push channel
         comet.channels.create(CHANNEL_ID, 'eval')
