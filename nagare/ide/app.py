@@ -9,6 +9,7 @@
 
 import configobj
 import traceback
+import cookielib
 
 import webob
 from nagare import component, wsgi, config, comet, security
@@ -132,6 +133,15 @@ class WSGIApp(wsgi.WSGIApp):
           - the root component
         """
         return super(WSGIApp, self).create_root('/'+self.name, self.get_applications, self.nagare_sources, self.editor_config)
+
+    def __call__(self, environ, start_response):
+        cookies = environ.get('HTTP_COOKIE')
+        if cookies:
+            cookies = cookielib.split_header_words([cookies])
+            cookies = [(k, v) for (k, v) in cookies[0] if not k.startswith('viewData_Nagare_')]
+            environ['HTTP_COOKIE'] = cookielib.join_header_words([cookies])
+
+        return super(WSGIApp, self).__call__(environ, start_response)
 
 # -----------------------------------------------------------------------------
 
