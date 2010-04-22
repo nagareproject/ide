@@ -99,7 +99,7 @@ class Directories(object):
             if os.path.isdir(pathname) and filename not in ('.svn', 'CVS'):
                 directories.append(self.load_directories(root, os.path.join(dirname, filename)))
 
-        return (dirname, files, directories)
+        return (dirname.replace('\\', '/'), files, directories)
 
 @presentation.render_for(Directories)
 def render(self, *args):
