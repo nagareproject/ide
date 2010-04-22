@@ -30,11 +30,12 @@ from nagare.ide import bespin_editor, tree, error
 import pkg_resources
 
 class WorkSpace(object):
-    def __init__(self, url, get_applications, nagare_sources, editor_config):
+    def __init__(self, url, allow_extensions, get_applications, nagare_sources, editor_config):
         """Initialization
 
         In:
-          - ``
+          - ``url`` -- url of this IDE application
+          - ``allow_extensions`` -- list of allowed file extensions
           - ``get_applications` -- function to get the published applications
           - ``nagare_sources`` -- Are the Nagare core sources included ?
           - ``editor_config`` -- the Bespin editor configuration as a dict
@@ -48,7 +49,7 @@ class WorkSpace(object):
         if nagare_sources:
             projects.add(pkg_resources.Requirement.parse('nagare'))
 
-        self.directories_view = component.Component(tree.Tree(projects, get_applications))
+        self.directories_view = component.Component(tree.Tree(projects, allow_extensions, get_applications))
 
     def get_exception(self, app_name):
         """Return the last exception of an application

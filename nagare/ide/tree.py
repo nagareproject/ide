@@ -64,14 +64,17 @@ def render(self, h, *args):
 class Directories(object):
     """A filesystem tree"""
 
-    def __init__(self, roots):
+    def __init__(self, roots, allow_extensions):
         """Initialization
 
         In:
           - ``roots`` -- list of filesystem roots, as tuples:
                          - label of the root
                          - path of the root
+          - ``allow_extensions`` -- list of allowed file extensions
         """
+        self.allow_extensions = tuple(allow_extensions)
+
         # Read and merge all the trees
         self.roots = [(label, root.replace('\\', '/'), self.load_directories(root)) for (label, root) in roots]
 
@@ -90,7 +93,7 @@ class Directories(object):
         for filename in os.listdir(os.path.join(root, dirname)):
             pathname = os.path.join(root, dirname, filename)
 
-            if os.path.isfile(pathname) and pathname.endswith(('.py', '.js', '.css', '.html', '.txt', '.cfg')):
+            if os.path.isfile(pathname) and pathname.endswith(self.allow_extensions):
                 files.append(filename)
 
             if os.path.isdir(pathname) and filename not in ('.svn', 'CVS'):
@@ -107,11 +110,12 @@ def render(self, *args):
 class Tree(object):
     """Tree view of the currently published applications and their packages
     """
-    def __init__(self, projects, get_applications):
+    def __init__(self, projects, allow_extensions, get_applications):
         """Initialization
 
         In:
           - ``projects`` -- the packages
+          - ``allow_extensions`` -- list of allowed file extensions
           - ``get_applications` -- function to get the published applications
         """
         self.projects = []
@@ -127,6 +131,7 @@ class Tree(object):
             # Use ``pkg_resources.resource_filename()`` to get the root of a packages sources
             self.projects.append(('Package ' + name, os.path.normpath(pkg_resources.resource_filename(project, parent))))
 
+        self.allow_extensions = allow_extensions
         self.get_applications = get_applications
 
 @presentation.render_for(Tree)
@@ -150,7 +155,7 @@ def render(self, h, *args):
         with h.div(id='treeview'):
             with h.ul:
                 # Display the packages sources
-                h << component.Component(Directories(self.projects))
+                h << component.Component(Directories(self.projects, self.allow_extensions))
 
                 # Display the exception labels
                 for name in apps:

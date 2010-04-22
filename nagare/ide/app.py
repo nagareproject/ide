@@ -37,6 +37,10 @@ class WSGIApp(wsgi.WSGIApp):
                 'tabsize' : 'string(default="4")'
             },
 
+            'navigator' : {
+                'allow_extensions' : 'list(default=list())'
+            },
+
             'security' : {
                 'security_manager' : 'string(default=nagare.ide.security:SecurityManager)'
             }
@@ -62,6 +66,7 @@ class WSGIApp(wsgi.WSGIApp):
         conf = configobj.ConfigObj(conf, configspec=configobj.ConfigObj(WSGIApp.spec))
         config.validate(config_filename, conf, error)
 
+        self.allow_extensions = conf['navigator']['allow_extensions']
         self.nagare_sources = conf['application']['nagare_sources']
         self.editor_config = dict([(k, str(v).lower() if isinstance(v, bool) else v) for (k, v) in conf['editor'].items()])
 
@@ -139,7 +144,7 @@ class WSGIApp(wsgi.WSGIApp):
         Return:
           - the root component
         """
-        return super(WSGIApp, self).create_root('/'+self.name, self.get_applications, self.nagare_sources, self.editor_config)
+        return super(WSGIApp, self).create_root('/'+self.name, self.allow_extensions, self.get_applications, self.nagare_sources, self.editor_config)
 
     def __call__(self, environ, start_response):
         cookies = environ.get('HTTP_COOKIE')
