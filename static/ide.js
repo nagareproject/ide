@@ -41,7 +41,7 @@ YAHOO.extend(YAHOO.nagare.BaseTab, YAHOO.widget.Tab, {
         // Put the focus on the associated entry in the treeview
         var node = treeview.getNodeByProperty('uid', this.uid);
         if(node && node.getEl()) {
-            node.focus();
+            //node.focus();
         }
     },
 
@@ -85,7 +85,7 @@ YAHOO.nagare.ExceptionTab = function(info) {
     // Create a new ``<div>`` element with id ``exception`` to receive the
     // content to display
 
-    // Delete the current ``id="exception"`` attribut
+    // Delete the current ``id="exception"`` attribute
     var div = document.getElementById('exception')
     if(div) {
         div.removeAttribute('id');
@@ -143,7 +143,7 @@ function create_action_event() {
     // Create an event for the Bespin actions manager
     //
     // Return:
-    //   - an event with a ``pos`` attribut containing the Bespin cursor context
+    //   - an event with a ``pos`` attribute containing the Bespin cursor context
     return { pos: bespin.editor.utils.copyPos(bespin.get('editor').cursorManager.getCursorPosition()) };
 }
 
