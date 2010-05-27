@@ -1,0 +1,11 @@
+Features
+========
+
+Nagare IDE is a pure Web Integrated Development Environment dedicated to the
+Nagare Web framework.
+
+Using `YUI <http://developer.yahoo.com/yui/2/>`_,
+the `Bespin <http://mozillalabs.com/bespin/>`_ editor, ajax and comet
+communications, it offers the browsing of your projects, the edition of the sources,
+the debugging of the raised exceptions and the consultation in real-time of the
+applications logs.
