@@ -44,7 +44,7 @@ class WorkSpace(object):
         self.get_applications = get_applications
         self.editor_config = editor_config
 
-        projects = set([app.project_name for app in get_applications()])
+        projects = set([app.project_name for app in get_applications() if app.project_name])
 
         if nagare_sources:
             projects.add(pkg_resources.Requirement.parse('nagare'))
@@ -62,7 +62,7 @@ class WorkSpace(object):
         """
         exceptions = [app.last_exception for app in self.get_applications() if (app.name == app_name) and app.last_exception]
         if not exceptions:
-            return (None, None)
+            return (None, (None, None, None))
 
         return exceptions[0]
 
@@ -159,6 +159,10 @@ def render(self, h, comp, *args):
 @presentation.render_for(WorkSpace, model='exception')
 def render(self, h, comp, *args):
     """The view where an application is redirected when an error occurs"""
+    (request, (exc_type, exc_value, tb)) = self.get_exception(self.app_in_error)
+
+    if request is None:
+        raise webob.exc.HTTPTemporaryRedirect(location='/'+self.app_in_error)
 
     # Get the javascript 'reload' view
     view = comp.render(xhtml.AsyncRenderer(request=h.request, response=h.response), model='reload')
@@ -168,8 +172,6 @@ def render(self, h, comp, *args):
     comet.channels.send(CHANNEL_ID, js+';')
 
     h.response.content_type = 'text/html'
-
-    (request, (exc_type, exc_value, tb)) = self.get_exception(self.app_in_error)
 
     h.head.css('exception', '''
         .exception { margin: 40px 40px 40px 0; background-color: #f3f2f1 }
@@ -279,7 +281,7 @@ def init(self, url, comp, http_method, request):
     response.empty_body = True
 
     if url[0] == 'BespinSettings':
-        raise exc
+        raise response
 
     filename = os.path.sep.join(url[1:])
     if not os.path.isabs(filename):
