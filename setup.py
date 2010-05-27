@@ -42,6 +42,7 @@ setup(
       license = 'BSD',
       keywords = 'web nagare ide bespin ajax comet traceback yui',
       url = 'http://www.nagare.org',
+      download_url = 'http://www.nagare.org/download',
       packages = find_packages(),
       include_package_data = True,
       package_data = {'' : ['*.cfg']},
