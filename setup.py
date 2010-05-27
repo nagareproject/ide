@@ -9,7 +9,15 @@
 
 VERSION = '0.1.0'
 
+import os, textwrap
+
 from setuptools import setup, find_packages
+
+# -----------------------------------------------------------------------------
+
+f = open(os.path.join(os.path.dirname(__file__), 'docs', 'features.txt'))
+long_description = f.read()
+f.close()
 
 setup(
       name = 'nagare.ide',
@@ -17,6 +25,20 @@ setup(
       author = 'Alain Poirier',
       author_email = 'alain.poirier at net-ng.com',
       description = 'Nagare Web IDE',
+      long_description = textwrap.dedent("""
+      Description
+      ^^^^^^^^^^^
+
+      %s
+
+      Installation
+      ============
+
+      For a standard installation, read the ``docs/README.txt`` document.
+
+      This document also describes how to install the latest development version
+      from the `Nagare subversion repository <svn://www.nagare.org/trunk/nagare/ide#egg=nagare.ide-dev>`_
+      """) % long_description,
       license = 'BSD',
       keywords = 'web nagare ide bespin ajax comet traceback yui',
       url = 'http://www.nagare.org',
@@ -24,7 +46,7 @@ setup(
       include_package_data = True,
       package_data = {'' : ['*.cfg']},
       zip_safe = False,
-      install_requires = ('Pygments', 'nagare'),
+      install_requires = ('Pygments', 'nagare>=0.3.0'),
       namespace_packages = ('nagare', 'nagare.ide',),
       entry_points = """
       [nagare.applications]
