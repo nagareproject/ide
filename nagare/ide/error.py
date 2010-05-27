@@ -192,7 +192,7 @@ class IDEFrame(object):
         if not self.filename or not self.lineno:
             return ''
 
-        return ''.join([linecache.getline(self.filename, lineno) for lineno in range(self.lineno-context, self.lineno+context+1)])
+        return ''.join([' '+linecache.getline(self.filename, lineno) for lineno in range(self.lineno-context, self.lineno+context+1)])
 
 @presentation.render_for(IDEFrame)
 def render(self, h, comp, *args):
