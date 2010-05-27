@@ -23,10 +23,6 @@ class WSGIApp(wsgi.WSGIApp):
     """
 
     spec = {
-            'application' : {
-                'nagare_sources' : 'boolean(default=False)'
-            },
-
             'editor' : {
                 'theme' : 'string(default="white")',
                 'tabshowspace' : 'boolean(default=True)',
@@ -38,11 +34,12 @@ class WSGIApp(wsgi.WSGIApp):
             },
 
             'navigator' : {
+                'nagare_sources' : 'boolean(default=False)',
                 'allow_extensions' : 'list(default=list())'
             },
 
             'security' : {
-                'security_manager' : 'string(default=nagare.ide.security:SecurityManager)'
+                'manager' : 'string(default=nagare.ide.security:SecurityManager)'
             }
            }
 
@@ -67,19 +64,23 @@ class WSGIApp(wsgi.WSGIApp):
         config.validate(config_filename, conf, error)
 
         self.allow_extensions = conf['navigator']['allow_extensions']
-        self.nagare_sources = conf['application']['nagare_sources']
+        self.nagare_sources = conf['navigator']['nagare_sources']
         self.editor_config = dict([(k, str(v).lower() if isinstance(v, bool) else v) for (k, v) in conf['editor'].items()])
 
         # Create and configure the security manager
         # -----------------------------------------
 
-        self.security = util.load_object(conf['security']['security_manager'])[0]()
+        self.security = util.load_object(conf['security']['manager'])[0]()
         self.security.set_config(config_filename, conf['security'], error)
 
         super(WSGIApp, self).set_config(config_filename, conf, error)
 
     def on_app_exception(self, request, app_name):
         """Call when an exception occurs in a published application
+
+        In:
+          - ``request` -- the WebOb request object
+          - ``app_name`` -- name (i.e URL) of the application where the exception occurs
 
         Return:
           - a WebOb response object
@@ -91,7 +92,7 @@ class WSGIApp(wsgi.WSGIApp):
         if request.is_xhr or ('_a' in request.params):
             r = webob.exc.HTTPInternalServerError(headers={ 'X-Debug-URL' : location })
         else:
-            r = webob.exc.HTTPMovedPermanently(location=location)
+            r = webob.exc.HTTPTemporaryRedirect(location=location)
 
         return r
 
@@ -99,7 +100,7 @@ class WSGIApp(wsgi.WSGIApp):
         """Register the publisher
 
         In:
-          - ``publisher`` -- the publisher of the application
+          - ``publisher`` -- the publisher of all the launched applications
         """
         super(WSGIApp, self).set_publisher(publisher)
 
@@ -116,7 +117,7 @@ class WSGIApp(wsgi.WSGIApp):
                 app.on_exception = lambda request, response, name=app.name: self.on_app_exception(request, name)
 
         # Create the Comet push channel
-        comet.channels.create(CHANNEL_ID, 'eval')
+        comet.channels.create(CHANNEL_ID, 'eval', 10)
 
     def start_request(self, root, request, response):
         """A new request is received, setup its dedicated environment
@@ -128,7 +129,7 @@ class WSGIApp(wsgi.WSGIApp):
         """
         super(WSGIApp, self).start_request(root, request, response)
 
-        security.check_permissions(None)
+        security.check_permissions('connection')
 
     def get_applications(self):
         """Return the published application objects
@@ -136,7 +137,7 @@ class WSGIApp(wsgi.WSGIApp):
         Return:
           - list of the published applications
         """
-        return [app for (app, _, _) in self.publisher.get_registered_applications() if (app is not self) and app.project_name and (app.project_name != 'nagare')]
+        return [app for (app, _, _) in self.publisher.get_registered_applications() if (app is not self) and (app.project_name != 'nagare')]
 
     def create_root(self):
         """Create the application root component
@@ -147,6 +148,16 @@ class WSGIApp(wsgi.WSGIApp):
         return super(WSGIApp, self).create_root('/'+self.name, self.allow_extensions, self.get_applications, self.nagare_sources, self.editor_config)
 
     def __call__(self, environ, start_response):
+        """WSGI interface
+
+        In:
+          - ``environ`` -- dictionary of the received elements
+          - ``start_response`` -- callback to send the headers to the browser
+
+        Return:
+          - the content to send back to the browser
+        """
+        # Clean-up the cookies because Bespin can generate invalid cookies for WebOb
         cookies = environ.get('HTTP_COOKIE')
         if cookies:
             cookies = cookielib.split_header_words([cookies])
