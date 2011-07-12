@@ -20,7 +20,6 @@ from pygments.lexers import guess_lexer_for_filename
 from pygments.formatters import HtmlFormatter
 
 from nagare import presentation, component, serializer, ajax, comet
-from nagare.namespaces import xhtml
 
 from nagare.ide import YUI_PREFIX, CHANNEL_ID
 from nagare.ide import bespin_editor, tree, error
@@ -95,7 +94,7 @@ def render(self, h, comp, *args):
     h.head << h.head.title('Nagare IDE')
 
     # Dummy asynchronous element to force the inclusion of the Nagare Ajax manager
-    xhtml.AsyncRenderer(h).a.action(lambda: None)
+    h.AsyncRenderer().a.action(lambda: None)
 
     multiprocess = h.request.environ['wsgi.multiprocess']
 
@@ -165,8 +164,8 @@ def render(self, h, comp, *args):
         raise webob.exc.HTTPTemporaryRedirect(location='/'+self.app_in_error)
 
     # Get the javascript 'reload' view
-    view = comp.render(xhtml.AsyncRenderer(request=h.request, response=h.response), model='reload')
-    js = serializer.serialize(view, h.request, h.response, False) #.encode('utf-8')
+    view = comp.render(h.AsyncRenderer(request=h.request, response=h.response, async_header=True), model='reload')
+    js = serializer.serialize(view, '', '', False)[1] #.encode('utf-8')
 
     # Push it to the IDE
     comet.channels.send(CHANNEL_ID, js+';')
@@ -176,6 +175,8 @@ def render(self, h, comp, *args):
     h.head.css('exception', '''
         .exception { margin: 40px 40px 40px 0; background-color: #f3f2f1 }
         .source { font-size: 70%; padding-left: 20px }
+        #content { margin-left: 0 }
+        body { font-size: 17px }
     ''')
 
     h.head.css_url('/static/nagare/application.css')
@@ -183,11 +184,11 @@ def render(self, h, comp, *args):
 
     h.head << h.head.title('Exception in application ' + self.app_in_error)
 
-    with h.div:
-        with h.div(class_='mybody'):
-            with h.div(id='myheader'):
-                h << h.a(h.img(src='/static/nagare/img/logo.gif'), id='logo', href='http://www.nagare.org/', title='Nagare home')
-                h << h.span('Exception', id='title')
+    with h.div(id='body'):
+        h << h.a(h.img(src='/static/nagare/img/logo_small.png'), id='logo', href='http://www.nagare.org/', title='Nagare home')
+
+        with h.div(id='content'):
+            h << h.div('Exception', id='title')
 
             with h.div(id='main'):
                 with h.div(class_='warning'):
@@ -210,10 +211,6 @@ def render(self, h, comp, *args):
                         if request:
                             h << h.li(h.a('Retry the last action', href=request.url))
                         h << h.li(h.a('Open a new session in application /'+self.app_in_error, href='/'+self.app_in_error))
-
-                h << h.div(u'\N{Copyright Sign} ', h.a('Net-ng', href='http://www.net-ng.com'), u'\N{no-break space}', align='right')
-
-        h << h.div(' ', class_='footer')
 
     return h.root
 

@@ -29,7 +29,6 @@ from pygments.formatters import HtmlFormatter
 from webob import Request
 
 from nagare import component, presentation, var
-from nagare.namespaces import xhtml
 
 NBSP = u'\N{NO-BREAK SPACE}'
 
@@ -232,7 +231,7 @@ def render(self, h, comp, *args):
             with h.li('Context', style='color: #555'):
                 with h.ul:
                     with h.li(yuiConfig='{ "not_expandable" : true }'):
-                        h << h.div(self.context.render(xhtml.AsyncRenderer(h)))
+                        h << h.div(self.context.render(h.AsyncRenderer()))
 
     return h.root
 
