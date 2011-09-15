@@ -37,7 +37,7 @@ setup(
       For a standard installation, read the ``docs/README.txt`` document.
 
       This document also describes how to install the
-      `latest <http://www.nagare.org/download/nagare.ide-latest#egg=nagare.ide-dev>`_
+      `latest <http://www.nagare.org/snapshots/nagare.ide-latest#egg=nagare.ide-dev>`_
       development version from the `Mercurial repository <http://hg.nagare.org/ide>`_
 
       The full documentation with screenshots is available at http://www.nagare.org/trac/wiki/NagareIde
