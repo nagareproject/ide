@@ -59,6 +59,9 @@ setup(
 
       [nagare.admin]
       sources = nagare.ide.admin:Admin
+
+      [nagare.sessions]
+      memory = nagare.ide.memory_sessions:SessionsWithMemoryStates
       """,
       classifiers = (
                   'Development Status :: 4 - Beta',
