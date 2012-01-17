@@ -1,0 +1,28 @@
+Nagare IDE Changelog
+====================
+
+0.2.0
+-----
+
+New features
+~~~~~~~~~~~~
+
+  - Mercurial migration (http://hg.nagare.org and http://bitbucket.org/nagare mirror)
+  - new site, examples and documentation design
+
+Changes
+~~~~~~~
+
+  - A renderer can create an asynchronous renderer:
+    ``comp.render(xhtml.AsyncRenderer())`` => ``comp.render(h.AsyncRenderer())``
+  - unused examples removed
+
+Fixed bugs
+~~~~~~~~~~
+  - #1502: incorrect ``memory`` sessions manager
+
+
+0.1.0
+-----
+
+Initial release
