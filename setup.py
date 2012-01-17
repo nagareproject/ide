@@ -51,7 +51,7 @@ setup(
       package_data = {'' : ['*.cfg']},
       use_hg_version = True,
       zip_safe = False,
-      install_requires = ('Pygments', 'nagare>=0.3.0'),
+      install_requires = ('Pygments', 'nagare>=0.4.0'),
       namespace_packages = ('nagare', 'nagare.ide',),
       entry_points = """
       [nagare.applications]
