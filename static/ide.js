@@ -27,7 +27,7 @@ YAHOO.nagare.BaseTab = function(info) {
     }, this);
 
     this.uid = info.uid;    // Each tab has a unique ID
-}
+};
 
 YAHOO.extend(YAHOO.nagare.BaseTab, YAHOO.widget.Tab, {
     onEnter: function(treeview, editor_id, editor) {
@@ -86,7 +86,7 @@ YAHOO.nagare.ExceptionTab = function(info) {
     // content to display
 
     // Delete the current ``id="exception"`` attribute
-    var div = document.getElementById('exception')
+    var div = document.getElementById('exception');
     if(div) {
         div.removeAttribute('id');
     }
@@ -99,12 +99,12 @@ YAHOO.nagare.ExceptionTab = function(info) {
     // Ajax request to retrieve the exception content
     nagare_getAndEval('exception_tab/'+info.app);
 
-    info.label = 'Exception in <i>' + info.app + '</i>'
+    info.label = 'Exception in <i>' + info.app + '</i>';
     info.contentEl = div;
 
     // Create the tab
     YAHOO.nagare.ExceptionTab.superclass.constructor.call(this, info);
-}
+};
 
 YAHOO.extend(YAHOO.nagare.ExceptionTab, YAHOO.nagare.BaseTab, {
     onEnter: function(treeview, editor_id, editor) {
@@ -183,7 +183,7 @@ YAHOO.nagare.EditableSourceTab = function(info) {
     // In:
     //   - ``info.pathname`` -- complete pathname of the source file on the server
     //   - ``info.filename`` -- filename part of the pathname
-    info.label = '<span title="' + info.pathname + '">' + info.filename + '</span>'
+    info.label = '<span title="' + info.pathname + '">' + info.filename + '</span>';
 
     // The icon bar
     info.content =  '<div class="tab_info">\
@@ -207,19 +207,19 @@ YAHOO.nagare.EditableSourceTab = function(info) {
     YAHOO.util.Event.addListener(icns[0], 'click', this.save, this, true);
     YAHOO.util.Event.addListener(icns[1], 'click', this.reload, this, true);
 
-    YAHOO.util.Event.addListener(icns[2], 'click', function() { get_actions_manager().cutSelection(create_action_event()) });
-    YAHOO.util.Event.addListener(icns[3], 'click', function() { get_actions_manager().copySelection(create_action_event()) });
-    YAHOO.util.Event.addListener(icns[4], 'click', function() { get_actions_manager().pasteFromClipboard(create_action_event()) });
+    YAHOO.util.Event.addListener(icns[2], 'click', function() { get_actions_manager().cutSelection(create_action_event()); });
+    YAHOO.util.Event.addListener(icns[3], 'click', function() { get_actions_manager().copySelection(create_action_event()); });
+    YAHOO.util.Event.addListener(icns[4], 'click', function() { get_actions_manager().pasteFromClipboard(create_action_event()); });
 
-    YAHOO.util.Event.addListener(icns[5], 'click', function() { get_actions_manager().undo(create_action_event()) });
-    YAHOO.util.Event.addListener(icns[6], 'click', function() { get_actions_manager().redo(create_action_event()) });
+    YAHOO.util.Event.addListener(icns[5], 'click', function() { get_actions_manager().undo(create_action_event()); });
+    YAHOO.util.Event.addListener(icns[6], 'click', function() { get_actions_manager().redo(create_action_event()); });
 
     this.pathname = info.pathname;
 
     this.source = "";
     this.modified = false;
     this.editor_state = null;
-}
+};
 
 YAHOO.extend(YAHOO.nagare.EditableSourceTab, YAHOO.nagare.BaseTab, {
     resize: function(content, editor_id, editor) {
@@ -309,8 +309,8 @@ YAHOO.extend(YAHOO.nagare.EditableSourceTab, YAHOO.nagare.BaseTab, {
     save: function() {
         // Save the source to the server
         var tab = this;
-        var editor = bespin.get('editor')
-        editor.saveFile('Nagare', this.pathname, function() { tab.modified = false; tab.source = editor.model.getDocument() }, function() {});
+        var editor = bespin.get('editor');
+        editor.saveFile('Nagare', this.pathname, function() { tab.modified = false; tab.source = editor.model.getDocument(); }, function() {});
     },
 
     close: function(tabview) {
@@ -319,7 +319,7 @@ YAHOO.extend(YAHOO.nagare.EditableSourceTab, YAHOO.nagare.BaseTab, {
         // In:
         //   - ``tabview`` -- the YUI treeview object
         var tab = this;
-        var close = function() { YAHOO.nagare.EditableSourceTab.superclass.close.call(tab, tabview); }
+        var close = function() { YAHOO.nagare.EditableSourceTab.superclass.close.call(tab, tabview); };
 
         tabview.selectTab(tabview.getTabIndex(this));
 
@@ -336,7 +336,7 @@ YAHOO.extend(YAHOO.nagare.EditableSourceTab, YAHOO.nagare.BaseTab, {
         // Reload the source from the server
         var tab = this;
         var editor = bespin.get('editor');
-        var reload = function() { editor.model.clear(); editor.openFile('Nagare', tab.pathname, { reload: true }); }
+        var reload = function() { editor.model.clear(); editor.openFile('Nagare', tab.pathname, { reload: true }); };
 
         if(this.isModified()) {
             // Modified source, ask confirmation to reload the tab
@@ -364,14 +364,14 @@ YAHOO.nagare.ReadOnlySourceTab = function(info) {
     // In:
     //   - ``info.pathname`` -- complete pathname of the source file on the server
     //   - ``info.filename`` -- filename part of the pathname
-    info.label = '<span title="' + info.pathname + '">' + info.filename + '</span>'
+    info.label = '<span title="' + info.pathname + '">' + info.filename + '</span>';
 
     id = 'id'+Math.ceil(Math.random()*1000000000);
-    info.content =  '<div class=".highlight" id="' + id + '"/>'
+    info.content =  '<div class=".highlight" id="' + id + '"/>';
 
     YAHOO.nagare.ReadOnlySourceTab.superclass.constructor.call(this, info);
     nagare_getAndEval('source/at/Nagare/'+info.pathname+'?id='+id);
-}
+};
 
 YAHOO.extend(YAHOO.nagare.ReadOnlySourceTab, YAHOO.nagare.BaseTab, {
     set_line_number: function(lineno) {
@@ -380,7 +380,7 @@ YAHOO.extend(YAHOO.nagare.ReadOnlySourceTab, YAHOO.nagare.BaseTab, {
         // In:
         //   - ``lineno`` -- the line number
     }
-})
+});
 
 // ----------------------------------------------------------------------------
 
@@ -456,7 +456,7 @@ function setup_tree_view(treeview_id) {
     var tree = new YAHOO.widget.TreeView(treeview_id);
 
     // A click on a tree element opens a tab
-    tree.subscribe('clickEvent', function(e) { open_tab(e.node.data) });
+    tree.subscribe('clickEvent', function(e) { open_tab(e.node.data); });
     tree.render();
 
     return tree;
@@ -470,8 +470,8 @@ function setup_tab_view(tabview_id) {
     var tabview = new YAHOO.widget.TabView(tabview_id);
 
     tabview.subscribe('activeTabChange', function(e) {
-        if(e.prevValue) { e.prevValue.onExit(treeview, 'editor', bespin.get('editor')) }
-        if(e.newValue) { e.newValue.onEnter(treeview, 'editor', bespin.get('editor')) }
+        if(e.prevValue) { e.prevValue.onExit(treeview, 'editor', bespin.get('editor')); }
+        if(e.newValue) { e.newValue.onEnter(treeview, 'editor', bespin.get('editor')); }
     });
 
     return tabview;
