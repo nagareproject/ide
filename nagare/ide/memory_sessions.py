@@ -18,6 +18,7 @@ import copy
 
 from nagare.sessions.memory_sessions import SessionsBase
 
+
 class SessionsWithMemoryStates(SessionsBase):
     """Sessions managers that keeps the objects graph in memory
     """

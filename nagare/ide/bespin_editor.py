@@ -13,6 +13,7 @@ from __future__ import with_statement
 
 from nagare import presentation
 
+
 class Editor:
     def __init__(self, settings):
         """Initialization
@@ -23,6 +24,7 @@ class Editor:
         self.settings = settings
         self.settings['reload'] = 'true'
         self.settings['dontstealfocus'] = 'true'
+
 
 @presentation.render_for(Editor)
 def render(self, h, *args):
@@ -36,7 +38,7 @@ def render(self, h, *args):
 
     settings = ['settings.set("%s", "%s");' % t for t in self.settings.items()]
 
-    h << h.div(id='editor', style='width: 1px; height: 1px') # The editor container
+    h << h.div(id='editor', style='width: 1px; height: 1px')  # The editor container
 
     with h.script:
         # Bind '^S' to the save action

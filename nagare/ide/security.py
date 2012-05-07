@@ -13,6 +13,7 @@ from peak.rules import when
 from nagare import config
 from nagare.security import common
 
+
 class Authentication(common.Authentication):
     """Authentication manager for IP addresses
 
@@ -64,7 +65,7 @@ class SecurityManager(Authentication, common.Rules):
     against a set of allowed hosts
     """
 
-    spec = { 'allow_hosts' : 'list(default=list())' }
+    spec = {'allow_hosts': 'list(default=list())'}
 
     def __init__(self, allow_hosts=()):
         """Initialization

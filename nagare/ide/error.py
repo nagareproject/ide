@@ -55,7 +55,7 @@ def python_highlight(code, renderer, wrapper, hl_line=-1, python_console=False, 
         i = line.find('<')
         if i != -1:
             # Replace the starting spaces by NBSP characters
-            line = NBSP*i + line[i:]
+            line = NBSP * i + line[i:]
 
         if n == hl_line:
             line = '<span class="source-highlight">%s</span>' % line
@@ -96,7 +96,7 @@ class IDEFrameContext(object):
         # Build an AST tree from the Python code, to get the line number of each statement
         try:
             nodes = compiler.parse(code).getChildNodes()[0].getChildNodes()
-            lines = [node.lineno-1 for node in nodes]
+            lines = [node.lineno - 1 for node in nodes]
         except:
             self.executions += '>>> ' + code + '\n' + ''.join(traceback.format_exception(*sys.exc_info())[4:])
             return
@@ -108,7 +108,7 @@ class IDEFrameContext(object):
 
             try:
                 # Iterate over all the statements
-                for (a, b) in zip(lines, lines[1:]+[None]):
+                for (a, b) in zip(lines, lines[1:] + [None]):
                     sys.stdout = StringIO()
 
                     source = code[a:b]
@@ -139,7 +139,7 @@ def render(self, h, *args):
             h << h.input(type='submit', value='Execute').action(lambda: self.execute(pyexpr()))
 
             if self.short_input():
-                h <<  ' '
+                h << ' '
                 h << h.input(type='submit', value='Expand').action(lambda: self.short_input(False))
 
         local_vars = self.locals
@@ -191,13 +191,14 @@ class IDEFrame(object):
         if not self.filename or not self.lineno:
             return ''
 
-        return ''.join([' '+linecache.getline(self.filename, lineno) for lineno in range(self.lineno-context, self.lineno+context+1)])
+        return ''.join([' ' + linecache.getline(self.filename, lineno) for lineno in range(self.lineno - context, self.lineno + context + 1)])
+
 
 @presentation.render_for(IDEFrame)
 def render(self, h, comp, *args):
     with h.li:
         if self.expanded:
-            h << { 'class' : 'expanded' }
+            h << {'class': 'expanded'}
 
         with h.div(title=self.filename or '?'):
             h << h.span('Module ', style='color: #555')
@@ -210,7 +211,7 @@ def render(self, h, comp, *args):
             if source:
                 with h.li:
                     if self.expanded:
-                        h << { 'class' : 'expanded' }
+                        h << {'class': 'expanded'}
 
                     with h.span:
                         js = '''if(YAHOO.env.ua.ie) { YAHOO.util.Event.stopEvent(window.event); }
@@ -219,14 +220,14 @@ def render(self, h, comp, *args):
                                     pathname: "%(pathname)s",
                                     filename: "%(filename)s",
                                     lineno: %(lineno)d
-                          })''' % { 'pathname' : self.filename.replace('\\', '/'), 'filename' : os.path.basename(self.filename), 'lineno' : self.lineno }
+                          })''' % {'pathname': self.filename.replace('\\', '/'), 'filename': os.path.basename(self.filename), 'lineno': self.lineno}
                         h << h.a('edit', href='#', onclick=js) << NBSP
                         h << python_highlight(source, h, h.span)
 
                     with h.ul:
                         with h.li(yuiConfig='{ "not_expandable" : true }'):
                             source = self.get_source_lines(2)
-                            h << python_highlight(source, h, h.pre(style='background-color: #f3f2f1'), hl_line=2, linenos='inline', linenostart=max(0, self.lineno-2))
+                            h << python_highlight(source, h, h.pre(style='background-color: #f3f2f1'), hl_line=2, linenos='inline', linenostart=max(0, self.lineno - 2))
 
             with h.li('Context', style='color: #555'):
                 with h.ul:
@@ -234,6 +235,7 @@ def render(self, h, comp, *args):
                         h << h.div(self.context.render(h.AsyncRenderer()))
 
     return h.root
+
 
 @presentation.render_for(IDEFrame, model='short')
 def render(self, h, *args):
@@ -243,7 +245,7 @@ def render(self, h, *args):
         h << h.span('Module ', style='color: #aaa') << (self.modname or '?') << h.span(' in ', style='color: #aaa') << (self.name or '?')
 
         source = self.get_source_lines(2)
-        h << python_highlight(source, h, h.pre, hl_line=2, linenos='inline', linenostart=max(0, self.lineno-2))
+        h << python_highlight(source, h, h.pre, hl_line=2, linenos='inline', linenostart=max(0, self.lineno - 2))
 
     return h.root
 
@@ -276,7 +278,8 @@ class IDEException(object):
             self.frames.append(component.Component(frame))
             tb = tb.tb_next
 
-        frame.expanded = True;  # The last frame will be displayed expanded
+        frame.expanded = True  # The last frame will be displayed expanded
+
 
 @presentation.render_for(IDEException)
 def render(self, h, comp, *args):
@@ -321,6 +324,7 @@ def render(self, h, comp, *args):
 
     return h.root
 
+
 @presentation.render_for(IDEException, model='tree_item')
 def render(self, h, *args):
     return h.li('Exception', yuiConfig='{ "labelStyle": "ygtvlabel exception" }')
@@ -364,7 +368,6 @@ def render(self, h, *args):
                             with h.tr:
                                 h << h.td(h.b(name), valign='top')
                                 h << h.td(repr(value), style='overflow: auto; padding: 0 4px 0 10px')
-
 
     with h.li('WSGI Variables'):
         with h.ul:

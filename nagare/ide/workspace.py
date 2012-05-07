@@ -65,29 +65,30 @@ class WorkSpace(object):
 
         return exceptions[0]
 
+
 @presentation.render_for(WorkSpace)
 def render(self, h, comp, *args):
-    h.head.css_url(YUI_PREFIX+'/reset-fonts-grids/reset-fonts-grids.css')
-    h.head.css_url(YUI_PREFIX+'/assets/skins/sam/resize.css')
-    h.head.css_url(YUI_PREFIX+'/assets/skins/sam/layout.css')
-    h.head.css_url(YUI_PREFIX+'/container/assets/skins/sam/container.css')
-    h.head.css_url(YUI_PREFIX+'/button/assets/skins/sam/button.css')
+    h.head.css_url(YUI_PREFIX + '/reset-fonts-grids/reset-fonts-grids.css')
+    h.head.css_url(YUI_PREFIX + '/assets/skins/sam/resize.css')
+    h.head.css_url(YUI_PREFIX + '/assets/skins/sam/layout.css')
+    h.head.css_url(YUI_PREFIX + '/container/assets/skins/sam/container.css')
+    h.head.css_url(YUI_PREFIX + '/button/assets/skins/sam/button.css')
 
     h.head.css('pygments', HtmlFormatter(nobackground=True).get_style_defs('.highlight'))
     h.head.css('pygments_linenos', '.linenos pre { color: #aaa; margin-right: 10px }')
 
-    h.head.javascript_url(YUI_PREFIX+'/yahoo-dom-event/yahoo-dom-event.js')
-    h.head.javascript_url(YUI_PREFIX+'/dragdrop/dragdrop-min.js')
-    h.head.javascript_url(YUI_PREFIX+'/element/element-min.js')
+    h.head.javascript_url(YUI_PREFIX + '/yahoo-dom-event/yahoo-dom-event.js')
+    h.head.javascript_url(YUI_PREFIX + '/dragdrop/dragdrop-min.js')
+    h.head.javascript_url(YUI_PREFIX + '/element/element-min.js')
 
-    h.head.javascript_url(YUI_PREFIX+'/resize/resize-min.js')
-    h.head.javascript_url(YUI_PREFIX+'/layout/layout-min.js')
+    h.head.javascript_url(YUI_PREFIX + '/resize/resize-min.js')
+    h.head.javascript_url(YUI_PREFIX + '/layout/layout-min.js')
 
-    h.head.javascript_url(YUI_PREFIX+'/tabview/tabview-min.js')
-    h.head.javascript_url(YUI_PREFIX+'/treeview/treeview-min.js')
+    h.head.javascript_url(YUI_PREFIX + '/tabview/tabview-min.js')
+    h.head.javascript_url(YUI_PREFIX + '/treeview/treeview-min.js')
 
-    h.head.javascript_url(YUI_PREFIX+'/button/button-min.js')
-    h.head.javascript_url(YUI_PREFIX+'/container/container-min.js')
+    h.head.javascript_url(YUI_PREFIX + '/button/button-min.js')
+    h.head.javascript_url(YUI_PREFIX + '/container/container-min.js')
 
     h.head.javascript_url('ide.js')
 
@@ -125,9 +126,9 @@ def render(self, h, comp, *args):
                  '''
 
             if not multiprocess:
-                 h << '''
+                h << '''
                         { position: 'bottom', body: 'logs', height: '300px', header: 'Logs', collapse: true, resize: true, scroll: true, gutter: '5 0 0 0' }
-                      '''
+                     '''
 
             h << '''
                     ]}).render();
@@ -155,20 +156,21 @@ def render(self, h, comp, *args):
     update = ajax.Update(lambda h: self.directories_view.render(h, model='raw'), component_to_update='tree')
     return update._generate_render(h)(h)
 
+
 @presentation.render_for(WorkSpace, model='exception')
 def render(self, h, comp, *args):
     """The view where an application is redirected when an error occurs"""
     (request, (exc_type, exc_value, tb)) = self.get_exception(self.app_in_error)
 
     if request is None:
-        raise webob.exc.HTTPTemporaryRedirect(location='/'+self.app_in_error)
+        raise webob.exc.HTTPTemporaryRedirect(location='/' + self.app_in_error)
 
     # Get the javascript 'reload' view
     view = comp.render(h.AsyncRenderer(request=h.request, response=h.response, async_header=True), model='reload')
-    js = serializer.serialize(view, '', '', False)[1] #.encode('utf-8')
+    js = serializer.serialize(view, '', '', False)[1]  # .encode('utf-8')
 
     # Push it to the IDE
-    comet.channels.send(CHANNEL_ID, js+';')
+    comet.channels.send(CHANNEL_ID, js + ';')
 
     h.response.content_type = 'text/html'
 
@@ -192,7 +194,7 @@ def render(self, h, comp, *args):
 
             with h.div(id='main'):
                 with h.div(class_='warning'):
-                    h << h.span('An exception occured in the application ', h.i('/'+self.app_in_error))
+                    h << h.span('An exception occured in the application ', h.i('/' + self.app_in_error))
 
                 with h.div(class_='exception'):
                     h << h.b(exc_type.__name__, ': ', str(exc_value))
@@ -210,9 +212,10 @@ def render(self, h, comp, *args):
                         h << h.li(h.a('Open a new IDE window', href=self.url, target='nagare_ide_window'))
                         if request:
                             h << h.li(h.a('Retry the last action', href=request.url))
-                        h << h.li(h.a('Open a new session in application /'+self.app_in_error, href='/'+self.app_in_error))
+                        h << h.li(h.a('Open a new session in application /' + self.app_in_error, href='/' + self.app_in_error))
 
     return h.root
+
 
 @presentation.render_for(WorkSpace, model='app_exception')
 def render(self, h, comp, *args):
@@ -236,10 +239,12 @@ def render(self, h, comp, *args):
 def init(self, url, comp, *args):
     comp.becomes(self, model='reload')
 
+
 @presentation.init_for(WorkSpace, "(len(url) == 2) and (url[0] == 'exception')")
 def init(self, url, comp, *args):
     self.app_in_error = url[1]
     comp.becomes(self, model='exception')
+
 
 @presentation.init_for(WorkSpace, "(len(url) == 2) and (url[0] == 'exception_tab')")
 def init(self, url, comp, *args):
@@ -257,6 +262,7 @@ def init(self, url, comp, http_method, request):
     response.body = '{}'
     raise response
 
+
 @presentation.init_for(WorkSpace, "(http_method == 'PUT') and (url[0] == 'file') and (url[1] == 'at')")
 def init(self, url, comp, http_method, request):
     """Writing a file"""
@@ -268,6 +274,7 @@ def init(self, url, comp, http_method, request):
         f.write(request.body)
 
     raise webob.exc.HTTPOk()
+
 
 @presentation.init_for(WorkSpace, "(http_method == 'GET') and (url[0] == 'file') and (url[1] == 'at') and (url[2] == 'Nagare')")
 def init(self, url, comp, http_method, request):
@@ -289,6 +296,7 @@ def init(self, url, comp, http_method, request):
             response.body = f.read()
 
     raise response
+
 
 @presentation.init_for(WorkSpace, "(http_method == 'GET') and (url[0] == 'source') and (url[1] == 'at') and (url[2] == 'Nagare')")
 def init(self, url, comp, http_method, request):

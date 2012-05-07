@@ -8,12 +8,13 @@ dist
 *.db
 *.log
 *.mo
+*.swp
 .DS_Store
 .project
 .pydevproject
 .settings
+.git
 nbproject
-*.swp
 
 syntax: regexp
 ^build

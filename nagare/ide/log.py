@@ -14,6 +14,7 @@ import logging
 from nagare import ajax, comet
 from nagare.ide import CHANNEL_ID
 
+
 class NagareHandler(logging.Handler):
     """Logger using a push channel to send the record to the IDE"""
     def emit(self, record):

@@ -18,28 +18,29 @@ from nagare.admin import util
 from nagare.ide import CHANNEL_ID, workspace
 import nagare.ide.log
 
+
 class WSGIApp(wsgi.WSGIApp):
     """The Nagare IDE application
     """
 
     spec = {
-            'editor' : {
-                'theme' : 'string(default="white")',
-                'tabshowspace' : 'boolean(default=True)',
-                'autoindent' : 'boolean(default=True)',
-                'closepairs' : 'boolean(default=False)',
-                'highlightline' : 'boolean(default=False)',
-                'fontsize' : 'string(default="10")',
-                'tabsize' : 'string(default="4")'
+            'editor': {
+                'theme': 'string(default="white")',
+                'tabshowspace': 'boolean(default=True)',
+                'autoindent': 'boolean(default=True)',
+                'closepairs': 'boolean(default=False)',
+                'highlightline': 'boolean(default=False)',
+                'fontsize': 'string(default="10")',
+                'tabsize': 'string(default="4")'
             },
 
-            'navigator' : {
-                'nagare_sources' : 'boolean(default=False)',
-                'allow_extensions' : 'list(default=list())'
+            'navigator': {
+                'nagare_sources': 'boolean(default=False)',
+                'allow_extensions': 'list(default=list())'
             },
 
-            'security' : {
-                'manager' : 'string(default=nagare.ide.security:SecurityManager)'
+            'security': {
+                'manager': 'string(default=nagare.ide.security:SecurityManager)'
             }
            }
 
@@ -48,9 +49,9 @@ class WSGIApp(wsgi.WSGIApp):
         """
         super(WSGIApp, self).__init__(root_factory)
 
-        self.nagare_sources = False # Nagare core sources displayed or not
+        self.nagare_sources = False  # Nagare core sources displayed or not
         self.publisher = None
-        self.editor_config = {}     # The Bespin editor configuration
+        self.editor_config = {}      # The Bespin editor configuration
 
     def set_config(self, config_filename, conf, error):
         """Process the configuration file
@@ -87,10 +88,10 @@ class WSGIApp(wsgi.WSGIApp):
         """
         traceback.print_exc()
 
-        location = '/'+self.name+'/exception/'+app_name
+        location = '/' + self.name + '/exception/' + app_name
 
         if request.is_xhr or ('_a' in request.params):
-            r = webob.exc.HTTPInternalServerError(headers={ 'X-Debug-URL' : location })
+            r = webob.exc.HTTPInternalServerError(headers={'X-Debug-URL': location})
         else:
             r = webob.exc.HTTPTemporaryRedirect(location=location)
 
@@ -145,7 +146,7 @@ class WSGIApp(wsgi.WSGIApp):
         Return:
           - the root component
         """
-        return super(WSGIApp, self).create_root('/'+self.name, self.allow_extensions, self.get_applications, self.nagare_sources, self.editor_config)
+        return super(WSGIApp, self).create_root('/' + self.name, self.allow_extensions, self.get_applications, self.nagare_sources, self.editor_config)
 
     def __call__(self, environ, start_response):
         """WSGI interface

@@ -9,7 +9,8 @@
 
 VERSION = '0.2.0'
 
-import os, textwrap
+import os
+import textwrap
 
 from setuptools import setup, find_packages
 
@@ -20,12 +21,12 @@ long_description = f.read()
 f.close()
 
 setup(
-      name = 'nagare.ide',
-      version = VERSION,
-      author = 'Alain Poirier',
-      author_email = 'alain.poirier at net-ng.com',
-      description = 'Nagare Web IDE',
-      long_description = textwrap.dedent("""
+      name='nagare.ide',
+      version=VERSION,
+      author='Alain Poirier',
+      author_email='alain.poirier at net-ng.com',
+      description='Nagare Web IDE',
+      long_description=textwrap.dedent("""
       Description
       ^^^^^^^^^^^
 
@@ -42,18 +43,18 @@ setup(
 
       The full documentation with screenshots is available at http://www.nagare.org/trac/wiki/NagareIde
       """) % long_description,
-      license = 'BSD',
-      keywords = 'web nagare ide bespin ajax comet traceback yui',
-      url = 'http://www.nagare.org',
-      download_url = 'http://www.nagare.org/download',
-      packages = find_packages(),
-      include_package_data = True,
-      package_data = {'' : ['*.cfg']},
-      use_hg_version = True,
-      zip_safe = False,
-      install_requires = ('Pygments==1.1', 'nagare>=0.4.0'),
-      namespace_packages = ('nagare', 'nagare.ide',),
-      entry_points = """
+      license='BSD',
+      keywords='web nagare ide bespin ajax comet traceback yui',
+      url='http://www.nagare.org',
+      download_url='http://www.nagare.org/download',
+      packages=find_packages(),
+      include_package_data=True,
+      package_data={'': ['*.cfg']},
+      use_hg_version=True,
+      zip_safe=False,
+      install_requires=('Pygments==1.1', 'nagare>=0.4.0'),
+      namespace_packages=('nagare', 'nagare.ide',),
+      entry_points="""
       [nagare.applications]
       ide = nagare.ide.app:app
 
@@ -63,7 +64,7 @@ setup(
       [nagare.sessions]
       memory = nagare.ide.memory_sessions:SessionsWithMemoryStates
       """,
-      classifiers = (
+      classifiers=(
                   'Development Status :: 4 - Beta',
                   'License :: OSI Approved :: BSD License',
                   'Intended Audience :: Developers',

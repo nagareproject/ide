@@ -43,6 +43,7 @@ class Directory(object):
         self.filenames = filenames
         self.directories = directories
 
+
 @presentation.render_for(Directory)
 def render(self, h, *args):
     with h.li:
@@ -101,6 +102,7 @@ class Directories(object):
 
         return (dirname.replace('\\', '/'), files, directories)
 
+
 @presentation.render_for(Directories)
 def render(self, *args):
     return [component.Component(Directory(label, root, *directories)) for (label, root, directories) in self.roots]
@@ -134,13 +136,15 @@ class Tree(object):
         self.allow_extensions = allow_extensions
         self.get_applications = get_applications
 
+
 @presentation.render_for(Tree)
 def render(self, h, comp, *args):
-    h.head.css_url(YUI_PREFIX+'/treeview/assets/skins/sam/treeview.css')
+    h.head.css_url(YUI_PREFIX + '/treeview/assets/skins/sam/treeview.css')
 
-    h.head.javascript_url(YUI_PREFIX+'/json/json-min.js')
+    h.head.javascript_url(YUI_PREFIX + '/json/json-min.js')
 
     return comp.render(h, model='raw')
+
 
 @presentation.render_for(Tree, model='raw')
 def render(self, h, *args):
