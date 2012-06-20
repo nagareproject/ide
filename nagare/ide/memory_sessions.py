@@ -22,11 +22,12 @@ from nagare.sessions.memory_sessions import SessionsBase
 class SessionsWithMemoryStates(SessionsBase):
     """Sessions managers that keeps the objects graph in memory
     """
-    def serialize(self, data):
+    def serialize(self, data, clean_callbacks):
         """Memorize an objects graph
 
         In:
           - ``data`` -- the objects graphs
+          - ``clean_callbacks`` -- do we have to forget the old callbacks?
 
         Return:
           - the tuple:
@@ -44,6 +45,6 @@ class SessionsWithMemoryStates(SessionsBase):
           - ``state_data`` -- data from the state
 
         Out:
-          - the objects graph
+          - tuple (the objects graph, the callbacks)
         """
         return copy.deepcopy(state_data) if self.states_history else state_data
