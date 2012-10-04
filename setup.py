@@ -7,7 +7,7 @@
 # this distribution.
 #--
 
-VERSION = '0.2.0'
+VERSION = '0.2.1'
 
 import os
 import textwrap
@@ -52,7 +52,7 @@ setup(
       package_data={'': ['*.cfg']},
       use_hg_version=True,
       zip_safe=False,
-      install_requires=('Pygments==1.1', 'nagare>=0.4.0'),
+      install_requires=('Pygments==1.1', 'nagare>0.4.1'),
       namespace_packages=('nagare', 'nagare.ide',),
       entry_points="""
       [nagare.applications]
@@ -60,9 +60,6 @@ setup(
 
       [nagare.admin]
       sources = nagare.ide.admin:Admin
-
-      [nagare.sessions]
-      memory = nagare.ide.memory_sessions:SessionsWithMemoryStates
       """,
       classifiers=(
                   'Development Status :: 4 - Beta',

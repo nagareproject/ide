@@ -97,7 +97,7 @@ class Directories(object):
             if os.path.isfile(pathname) and pathname.endswith(self.allow_extensions):
                 files.append(filename)
 
-            if os.path.isdir(pathname) and filename not in ('.svn', 'CVS'):
+            if os.path.isdir(pathname) and filename not in ('.svn', 'CVS', '.hg', '.git'):
                 directories.append(self.load_directories(root, os.path.join(dirname, filename)))
 
         return (dirname.replace('\\', '/'), files, directories)

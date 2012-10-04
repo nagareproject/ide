@@ -19,7 +19,7 @@ from pygments import highlight
 from pygments.lexers import guess_lexer_for_filename
 from pygments.formatters import HtmlFormatter
 
-from nagare import presentation, component, serializer, ajax, comet
+from nagare import presentation, component, serializer, ajax, comet, partial
 
 from nagare.ide import YUI_PREFIX, CHANNEL_ID
 from nagare.ide import bespin_editor, tree, error
@@ -49,6 +49,8 @@ class WorkSpace(object):
             projects.add(pkg_resources.Requirement.parse('nagare'))
 
         self.directories_view = component.Component(tree.Tree(projects, allow_extensions, get_applications))
+        self.error = component.Component()
+        self.traceback = component.Component()
 
     def get_exception(self, app_name):
         """Return the last exception of an application
@@ -95,7 +97,7 @@ def render(self, h, comp, *args):
     h.head << h.head.title('Nagare IDE')
 
     # Dummy asynchronous element to force the inclusion of the Nagare Ajax manager
-    h.AsyncRenderer().a.action(lambda: None)
+    h.AsyncRenderer().a.action(None)
 
     multiprocess = h.request.environ['wsgi.multiprocess']
 
@@ -153,7 +155,7 @@ def render(self, h, comp, *args):
 @presentation.render_for(WorkSpace, model='reload')
 def render(self, h, comp, *args):
     """A full javascript view to update the left panel content"""
-    update = ajax.Update(lambda h: self.directories_view.render(h, model='raw'), component_to_update='tree')
+    update = ajax.Update(self.directories_view.render, model='raw', component_to_update='tree')
     return update._generate_render(h)(h)
 
 
@@ -202,7 +204,7 @@ def render(self, h, comp, *args):
                     while tb.tb_next:
                         tb = tb.tb_next
 
-                    h << component.Component(error.IDEFrame(tb), model='short')
+                    h << self.error
 
                 with h.div:
                     h << 'You can:'
@@ -224,10 +226,10 @@ def render(self, h, comp, *args):
     if not request:
         return ''
 
-    traceback = component.Component(error.IDEException(request, *exception))
+    self.traceback.becomes(error.IDEException(partial.Partial(self.get_exception, self.app_in_error)))
 
     # This is a javascript asynchronous view
-    update = ajax.Update(traceback.render, component_to_update='exception')
+    update = ajax.Update(self.traceback.render, component_to_update='exception')
     return update._generate_render(h)(h)
 
 # -----------------------------------------------------------------------------
@@ -243,6 +245,8 @@ def init(self, url, comp, *args):
 @presentation.init_for(WorkSpace, "(len(url) == 2) and (url[0] == 'exception')")
 def init(self, url, comp, *args):
     self.app_in_error = url[1]
+    self.error.becomes(error.IDEFrame(partial.Partial(self.get_exception, self.app_in_error)), model='short')
+
     comp.becomes(self, model='exception')
 
 

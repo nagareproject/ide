@@ -11,7 +11,7 @@ import pkg_resources
 
 from nagare import ajax
 
-pkg_resources.declare_namespace('nagare.ide')
+pkg_resources.declare_namespace(__name__)
 
 YUI_PREFIX = ajax.YUI_INTERNAL_PREFIX   # Use the YUI sources bundled with the Nagare distribution
 CHANNEL_ID = '_nagare_ide_'             # Comet push channel name

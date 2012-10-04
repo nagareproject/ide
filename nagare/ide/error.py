@@ -28,7 +28,7 @@ from pygments.formatters import HtmlFormatter
 
 from webob import Request
 
-from nagare import component, presentation, var
+from nagare import component, presentation, var, partial
 
 NBSP = u'\N{NO-BREAK SPACE}'
 
@@ -72,20 +72,26 @@ class IDEFrameContext(object):
 
     exec_lock = threading.Lock()
 
-    def __init__(self, locals, globals):
+    def __init__(self, get_frame):
         """Initialization
 
         In:
-          - ``locals`` -- local vars dict
-          - ``globals`` -- global vars dict
+          - ``get_frame`` -- function to call to retrieve the Python frame
         """
-        self.locals = locals
-        self.globals = globals
+        self.get_frame = get_frame
 
         self.executions = ''  # Concatenation of all the ``self.execute(code)`` calls
         self.expanded_locals = {}
 
         self.short_input = var.Var(True)
+
+    def expand_local(self, name):
+        """A local var will be displayed in full extend
+
+        In:
+          - ``name`` -- name of the local var
+        """
+        self.expanded_locals[name] = True
 
     def execute(self, code):
         """Execute a Python code in this context
@@ -93,6 +99,8 @@ class IDEFrameContext(object):
         In:
           - ``code`` -- the Python code
         """
+        code = code()
+
         # Build an AST tree from the Python code, to get the line number of each statement
         try:
             nodes = compiler.parse(code).getChildNodes()[0].getChildNodes()
@@ -115,13 +123,15 @@ class IDEFrameContext(object):
 
                     try:
                         # Execute the statement using this local and global context
-                        exec compile('\n'.join(source), '<web>', 'single', 0, 1) in self.locals, self.globals
+                        frame = self.get_frame()
+                        exec compile('\n'.join(source), '<web>', 'single', 0, 1) in frame.f_locals, frame.f_globals
                     except:
                         print ''.join(traceback.format_exception(*sys.exc_info())[2:]).rstrip()
 
                     self.executions += '\n'.join([('... ' if line.startswith(' ') else '>>> ') + line for line in source]) + '\n' + sys.stdout.getvalue()
             finally:
                 sys.stdout = stdout
+
 
 
 @presentation.render_for(IDEFrameContext)
@@ -136,13 +146,13 @@ def render(self, h, *args):
         with h.form(onsubmit="return false"):
             h << (h.input if self.short_input() else h.textarea(rows=4))(style='width: 100%').action(pyexpr)
             h << h.br
-            h << h.input(type='submit', value='Execute').action(lambda: self.execute(pyexpr()))
+            h << h.input(type='submit', value='Execute').action(self.execute, pyexpr)
 
             if self.short_input():
                 h << ' '
-                h << h.input(type='submit', value='Expand').action(lambda: self.short_input(False))
+                h << h.input(type='submit', value='Expand').action(self.short_input, False)
 
-        local_vars = self.locals
+        local_vars = self.get_frame().f_locals
         if not local_vars:
             h << h.i('No local vars')
         else:
@@ -155,7 +165,7 @@ def render(self, h, *args):
                         h << h.td(h.b(name), valign='top')
                         with h.td(style='overflow: auto; padding: 0 4px 0 10px'):
                             if expand and not self.expanded_locals.get(name):
-                                expand = h.a('...', style='background-color: #dadada').action(lambda name=name: self.expanded_locals.setdefault(name, True))
+                                expand = h.a('...', style='background-color: #dadada').action(self.expand_local, name)
 
                             h << h.code(value, expand)
 
@@ -166,47 +176,84 @@ def render(self, h, *args):
 class IDEFrame(object):
     """A Python frame
     """
-    def __init__(self, tb):
+    def __init__(self, get_exception, tb_no=1000):
         """Initialization
 
         In:
-          - ``frame`` -- ``tb.tb_frame`` is the Python frame
+          - ``get_exception`` -- function to call to retrieve all the exception data
+          - ``tb_no`` -- number of this traceback
         """
-        frame = tb.tb_frame
-
-        self.lineno = tb.tb_lineno
-        self.filename = frame.f_code.co_filename
-        self.name = frame.f_code.co_name
-        self.modname = frame.f_globals.get('__name__')
+        self.get_exception = get_exception
+        self.tb_no = tb_no
 
         self.expanded = False
-        self.context = component.Component(IDEFrameContext(frame.f_locals, frame.f_globals))
+        self.context = component.Component(IDEFrameContext(partial.Partial(self.get_frame, tb_no)))
 
-    def get_source_lines(self, context=0):
-        """Fetch the Python lines of code of this frame
+    def get_traceback(self, i):
+        """Return the traceback number ``i`` in the tracebacks list
 
         In:
-          - ``context`` -- number of lines to fetch before and after the frame line
+          - ``i`` -- traceback to retrieve
+
+        Return:
+          - the traceback
         """
-        if not self.filename or not self.lineno:
+        (_, (_, _, tb)) = self.get_exception()
+
+        while i and tb.tb_next:
+            tb = tb.tb_next
+            i -= 1
+
+        return tb
+
+    def get_frame(self, i):
+        """Return the frame number ``i`` in the frames list
+
+        In:
+          - ``i`` -- frame to retrieve
+
+        Return:
+          - the frame
+        """
+        return self.get_traceback(i).tb_frame
+
+    @property
+    def traceback(self):
+        """Return this traceback"""
+        return self.get_traceback(self.tb_no)
+
+    def get_source_lines(self, filename, lineno, context=0):
+        """Fetch some Python lines of code
+
+        In:
+          - ``filename`` -- python filename to read
+          - ``lineno`` -- python line to read
+          - ``context`` -- number of contextual python lines
+        """
+        if not filename or not lineno:
             return ''
 
-        return ''.join([' ' + linecache.getline(self.filename, lineno) for lineno in range(self.lineno - context, self.lineno + context + 1)])
+        return ''.join([' ' + linecache.getline(filename, line) for line in range(lineno - context, lineno + context + 1)])
 
 
 @presentation.render_for(IDEFrame)
 def render(self, h, comp, *args):
+    tb = self.traceback
+    frame = tb.tb_frame
+    lineno = tb.tb_lineno
+    filename = frame.f_code.co_filename
+
     with h.li:
         if self.expanded:
             h << {'class': 'expanded'}
 
-        with h.div(title=self.filename or '?'):
+        with h.div(title=filename or '?'):
             h << h.span('Module ', style='color: #555')
-            h << (self.modname or '?') << ':' << (self.lineno or '?')
-            h << h.span(' in ', style='color: #555') << (self.name or '?')
+            h << frame.f_globals.get('__name__', '?') << ':' << (lineno or '?')
+            h << h.span(' in ', style='color: #555') << (frame.f_code.co_name or '?')
 
         with h.ul:
-            source = self.get_source_lines(0)
+            source = self.get_source_lines(filename, lineno)
 
             if source:
                 with h.li:
@@ -220,14 +267,14 @@ def render(self, h, comp, *args):
                                     pathname: "%(pathname)s",
                                     filename: "%(filename)s",
                                     lineno: %(lineno)d
-                          })''' % {'pathname': self.filename.replace('\\', '/'), 'filename': os.path.basename(self.filename), 'lineno': self.lineno}
+                          })''' % {'pathname': filename.replace('\\', '/'), 'filename': os.path.basename(filename), 'lineno': lineno}
                         h << h.a('edit', href='#', onclick=js) << NBSP
                         h << python_highlight(source, h, h.span)
 
                     with h.ul:
                         with h.li(yuiConfig='{ "not_expandable" : true }'):
-                            source = self.get_source_lines(2)
-                            h << python_highlight(source, h, h.pre(style='background-color: #f3f2f1'), hl_line=2, linenos='inline', linenostart=max(0, self.lineno - 2))
+                            source = self.get_source_lines(filename, lineno, 2)
+                            h << python_highlight(source, h, h.pre(style='background-color: #f3f2f1'), hl_line=2, linenos='inline', linenostart=max(0, lineno - 2))
 
             with h.li('Context', style='color: #555'):
                 with h.ul:
@@ -239,13 +286,19 @@ def render(self, h, comp, *args):
 
 @presentation.render_for(IDEFrame, model='short')
 def render(self, h, *args):
+    tb = self.traceback
+    frame = tb.tb_frame
+    lineno = tb.tb_lineno
+    filename = frame.f_code.co_filename
+
     h.head.css('pygments', HtmlFormatter(nobackground=True).get_style_defs('.highlight'))
 
-    with h.div(title=self.filename or '?'):
-        h << h.span('Module ', style='color: #aaa') << (self.modname or '?') << h.span(' in ', style='color: #aaa') << (self.name or '?')
+    with h.div(title=filename or '?'):
+        h << h.span('Module ', style='color: #aaa') << frame.f_globals.get('__name__', '?')
+        h << h.span(' in ', style='color: #aaa') << (frame.f_code.co_name or '?')
 
-        source = self.get_source_lines(2)
-        h << python_highlight(source, h, h.pre, hl_line=2, linenos='inline', linenostart=max(0, self.lineno - 2))
+        source = self.get_source_lines(filename, lineno, 2)
+        h << python_highlight(source, h, h.pre, hl_line=2, linenos='inline', linenostart=max(0, lineno - 2))
 
     return h.root
 
@@ -254,50 +307,49 @@ def render(self, h, *args):
 class IDEException(object):
     """A Python exception
     """
-    def __init__(self, request, exc_type, exc_value, tb):
+    def __init__(self, get_exception):
         """Initialization
 
         In:
-          - ``request`` -- the WebOb request where the exception occured
-          - ``exc_type`` -- the exception type
-          - ``exc_value`` -- the exception value
-          - ``tb`` -- the traceback
+          - ``get_exception`` -- function to call to retrieve the exception data
         """
-        self.request = request
-        self.exception_name = exc_type.__name__
-        self.exception_value = str(exc_value)
-
-        self.tb = ''.join(traceback.format_exception(exc_type, exc_value, tb))
+        self.get_exception = get_exception
 
         # From the traceback, create a list of frame components
         # -----------------------------------------------------
 
         self.frames = []
+
+        (_, (_, _, tb)) = get_exception()
+        i = 0
         while tb:
-            frame = IDEFrame(tb)
+            frame = IDEFrame(get_exception, i)
             self.frames.append(component.Component(frame))
+            i += 1
             tb = tb.tb_next
 
         frame.expanded = True  # The last frame will be displayed expanded
 
-
 @presentation.render_for(IDEException)
 def render(self, h, comp, *args):
+    (request, (exc_type, exc_value, tb)) = self.get_exception()
+    tb = ''.join(traceback.format_exception(exc_type, exc_value, tb))
+
     with h.div:
         # Exception informations
         with h.div(class_='tab_info'):
             h << h.span(u'⇝', style='color: #f00') << NBSP
-            h << self.exception_name << ': ' << self.exception_value
+            h << exc_type.__name__ << ': ' << str(exc_value)
 
         with h.div(style='padding: 10px', id='frames'):
             with h.ul:
                 # Request informations (CGI and WSGI variables)
-                h << component.Component(self.request, model='ide')
+                h << component.Component(request, model='ide')
 
                 # Textual traceback
                 with h.li('Text Traceback'):
                     lexer = PythonTracebackLexer()
-                    source = pygments_highlight(self.tb, lexer, HtmlFormatter())
+                    source = pygments_highlight(tb, lexer, HtmlFormatter())
                     h << h.ul(h.li(h.parse_htmlstring(source), yuiConfig='{ "not_expandable" : true }'))
 
                 # Interactive traceback
@@ -376,7 +428,7 @@ def render(self, h, *args):
                     environ = self.environ.copy()
 
                     version = environ.pop('wsgi.version')
-                    if  version != (1, 0):
+                    if version != (1, 0):
                         environ['wsgi.version'] = '%d.%d' % version
 
                     process_combo = map(environ.get, ('wsgi.multiprocess', 'wsgi.multithread', 'wsgi.run_once'))

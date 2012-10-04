@@ -18,6 +18,17 @@ from nagare.admin import util
 from nagare.ide import CHANNEL_ID, workspace
 import nagare.ide.log
 
+# Function to retrieved all the currently published applications
+get_registered_applications = None
+
+def get_applications():
+    """Return the published application objects
+
+    Return:
+      - list of the published applications
+    """
+    return [app for (app, _, _) in get_registered_applications() if not app.project_name.startswith('nagare')]
+
 
 class WSGIApp(wsgi.WSGIApp):
     """The Nagare IDE application
@@ -49,8 +60,7 @@ class WSGIApp(wsgi.WSGIApp):
         """
         super(WSGIApp, self).__init__(root_factory)
 
-        self.nagare_sources = False  # Nagare core sources displayed or not
-        self.publisher = None
+        self.nagare_sources = False  # Are the Nagare core sources displayed or not?
         self.editor_config = {}      # The Bespin editor configuration
 
     def set_config(self, config_filename, conf, error):
@@ -103,9 +113,10 @@ class WSGIApp(wsgi.WSGIApp):
         In:
           - ``publisher`` -- the publisher of all the launched applications
         """
-        super(WSGIApp, self).set_publisher(publisher)
+        global get_registered_applications
+        get_registered_applications = publisher.get_registered_applications
 
-        self.publisher = publisher
+        super(WSGIApp, self).set_publisher(publisher)
 
     def start(self):
         """Call after each process start
@@ -113,9 +124,8 @@ class WSGIApp(wsgi.WSGIApp):
         super(WSGIApp, self).start()
 
         # For each published application, overwrite its ``on_exception()`` hook
-        for (app, _, _) in self.publisher.get_registered_applications():
-            if app is not self:
-                app.on_exception = lambda request, response, name=app.name: self.on_app_exception(request, name)
+        for app in get_applications():
+            app.on_exception = lambda request, response, name=app.name: self.on_app_exception(request, name)
 
         # Create the Comet push channel
         comet.channels.create(CHANNEL_ID, 'eval', 10)
@@ -132,21 +142,13 @@ class WSGIApp(wsgi.WSGIApp):
 
         security.check_permissions('connection')
 
-    def get_applications(self):
-        """Return the published application objects
-
-        Return:
-          - list of the published applications
-        """
-        return [app for (app, _, _) in self.publisher.get_registered_applications() if (app is not self) and (app.project_name != 'nagare')]
-
     def create_root(self):
         """Create the application root component
 
         Return:
           - the root component
         """
-        return super(WSGIApp, self).create_root('/' + self.name, self.allow_extensions, self.get_applications, self.nagare_sources, self.editor_config)
+        return super(WSGIApp, self).create_root('/' + self.name, self.allow_extensions, get_applications, self.nagare_sources, self.editor_config)
 
     def __call__(self, environ, start_response):
         """WSGI interface
