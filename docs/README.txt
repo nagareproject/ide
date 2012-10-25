@@ -145,7 +145,7 @@ by the applications:
 By default, all the messages logged using the dedicated application logger, with
 at least the `INFO` level, are sent to the IDE. The logging level can be changed
 in the IDE configuration file. And, more generaly, to know how to use the logging
-system of Nagare, see :wiki:`NagareLogging`.
+system of Nagare, see :wiki:`LogService`.
 
 Debugging
 ---------
