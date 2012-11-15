@@ -13,7 +13,7 @@ import cookielib
 
 import webob
 from nagare import component, wsgi, config, comet, security
-from nagare.admin import util
+from nagare.admin import reference
 
 from nagare.ide import CHANNEL_ID, workspace
 import nagare.ide.log
@@ -81,7 +81,7 @@ class WSGIApp(wsgi.WSGIApp):
         # Create and configure the security manager
         # -----------------------------------------
 
-        self.security = util.load_object(conf['security']['manager'])[0]()
+        self.security = reference.load_object(conf['security']['manager'])[0]()
         self.security.set_config(config_filename, conf['security'], error)
 
         super(WSGIApp, self).set_config(config_filename, conf, error)
