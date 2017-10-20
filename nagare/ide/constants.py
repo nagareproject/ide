@@ -6,3 +6,8 @@
 # the file LICENSE.txt, which you should have received as part of
 # this distribution.
 # --
+
+from nagare import ajax
+
+YUI_PREFIX = ajax.YUI_INTERNAL_PREFIX   # Use the YUI sources bundled with the Nagare distribution
+CHANNEL_ID = '_nagare_ide_'             # Comet push channel name

@@ -1,15 +1,13 @@
-#--
-# Copyright (c) 2008-2013 Net-ng.
+# --
+# Copyright (c) 2008-2017 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
 # the file LICENSE.txt, which you should have received as part of
 # this distribution.
-#--
+# --
 
 """Nagare IDE interface"""
-
-from __future__ import with_statement
 
 import os
 
@@ -21,12 +19,13 @@ from pygments.formatters import HtmlFormatter
 
 from nagare import presentation, component, serializer, ajax, comet, partial
 
-from nagare.ide import YUI_PREFIX, CHANNEL_ID
+from nagare.ide.constants import YUI_PREFIX, CHANNEL_ID
 from nagare.ide import bespin_editor, tree, error
 
 # -----------------------------------------------------------------------------
 
 import pkg_resources
+
 
 class WorkSpace(object):
     def __init__(self, url, allow_extensions, get_applications, nagare_sources, editor_config):
@@ -150,6 +149,7 @@ def render(self, h, comp, *args):
 
     return h.root
 
+
 # -----------------------------------------------------------------------------
 
 @presentation.render_for(WorkSpace, model='reload')
@@ -232,6 +232,7 @@ def render(self, h, comp, *args):
     update = ajax.Update(self.traceback.render, component_to_update='exception')
     return update._generate_render(h)(h)
 
+
 # -----------------------------------------------------------------------------
 
 # URLs mapping
@@ -254,6 +255,7 @@ def init(self, url, comp, *args):
 def init(self, url, comp, *args):
     self.app_in_error = url[1]
     comp.becomes(self, model='app_exception')
+
 
 # -----------------------------------------------------------------------------
 

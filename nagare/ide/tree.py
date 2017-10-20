@@ -1,15 +1,13 @@
-#--
-# Copyright (c) 2008-2013 Net-ng.
+# --
+# Copyright (c) 2008-2017 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
 # the file LICENSE.txt, which you should have received as part of
 # this distribution.
-#--
+# --
 
 """Tree view of the source files and exceptions"""
-
-from __future__ import with_statement
 
 import os
 
@@ -17,7 +15,8 @@ import pkg_resources
 
 from nagare import component, presentation, ajax
 
-from nagare.ide import YUI_PREFIX
+from nagare.ide.constants import YUI_PREFIX
+
 
 # -----------------------------------------------------------------------------
 
@@ -59,6 +58,7 @@ def render(self, h, *args):
                     h << [h.li(filename, yuiConfig='{ "labelStyle": "ygtvlabel file", "uid" : "source@%s", "filename" : "%s" }' % ('/'.join((self.root, self.dirname, filename)), filename)) for filename in self.filenames]
 
     return h.root
+
 
 # -----------------------------------------------------------------------------
 
@@ -106,6 +106,7 @@ class Directories(object):
 @presentation.render_for(Directories)
 def render(self, *args):
     return [component.Component(Directory(label, root, *directories)) for (label, root, directories) in self.roots]
+
 
 # -----------------------------------------------------------------------------
 

@@ -1,11 +1,11 @@
-#--
-# Copyright (c) 2008-2013 Net-ng.
+# --
+# Copyright (c) 2008-2017 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
 # the file LICENSE.txt, which you should have received as part of
 # this distribution.
-#--
+# --
 
 import configobj
 import traceback
@@ -15,11 +15,13 @@ import webob
 from nagare import component, wsgi, config, comet, security
 from nagare.admin import reference
 
-from nagare.ide import CHANNEL_ID, workspace
-import nagare.ide.log
+from nagare.ide import workspace
+from nagare.ide.constants import CHANNEL_ID
+import nagare.ide.log  # noqa: F401
 
 # Function to retrieved all the currently published applications
 get_registered_applications = None
+
 
 def get_applications():
     """Return the published application objects
@@ -35,25 +37,25 @@ class WSGIApp(wsgi.WSGIApp):
     """
 
     spec = {
-            'editor': {
-                'theme': 'string(default="white")',
-                'tabshowspace': 'boolean(default=True)',
-                'autoindent': 'boolean(default=True)',
-                'closepairs': 'boolean(default=False)',
-                'highlightline': 'boolean(default=False)',
-                'fontsize': 'string(default="10")',
-                'tabsize': 'string(default="4")'
-            },
+        'editor': {
+            'theme': 'string(default="white")',
+            'tabshowspace': 'boolean(default=True)',
+            'autoindent': 'boolean(default=True)',
+            'closepairs': 'boolean(default=False)',
+            'highlightline': 'boolean(default=False)',
+            'fontsize': 'string(default="10")',
+            'tabsize': 'string(default="4")'
+        },
 
-            'navigator': {
-                'nagare_sources': 'boolean(default=False)',
-                'allow_extensions': 'list(default=list())'
-            },
+        'navigator': {
+            'nagare_sources': 'boolean(default=False)',
+            'allow_extensions': 'list(default=list())'
+        },
 
-            'security': {
-                'manager': 'string(default=nagare.ide.security:SecurityManager)'
-            }
-           }
+        'security': {
+            'manager': 'string(default=nagare.ide.security:SecurityManager)'
+        }
+    }
 
     def __init__(self, root_factory):
         """Initialization
@@ -106,6 +108,9 @@ class WSGIApp(wsgi.WSGIApp):
             r = webob.exc.HTTPTemporaryRedirect(location=location)
 
         return r
+
+    def on_bad_http_method(self, request, response):
+        pass
 
     def set_publisher(self, publisher):
         """Register the publisher
@@ -168,6 +173,7 @@ class WSGIApp(wsgi.WSGIApp):
             environ['HTTP_COOKIE'] = cookielib.join_header_words([cookies])
 
         return super(WSGIApp, self).__call__(environ, start_response)
+
 
 # -----------------------------------------------------------------------------
 

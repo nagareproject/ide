@@ -1,17 +1,15 @@
 # Encoding: utf-8
 
-#--
-# Copyright (c) 2008-2013 Net-ng.
+# --
+# Copyright (c) 2008-2017 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
 # the file LICENSE.txt, which you should have received as part of
 # this distribution.
-#--
+# --
 
 """Frames and exceptions components"""
-
-from __future__ import with_statement
 
 import sys
 import os
@@ -31,6 +29,7 @@ from webob import Request
 from nagare import component, presentation, var, partial
 
 NBSP = u'\N{NO-BREAK SPACE}'
+
 
 # ----------------------------------------------------------
 
@@ -64,6 +63,7 @@ def python_highlight(code, renderer, wrapper, hl_line=-1, python_console=False, 
 
     html = renderer.parse_htmlstring('<br>'.join(lines))
     return wrapper(html[0][0][0][:], class_='source highlight')
+
 
 # -----------------------------------------------------------------------------
 
@@ -133,7 +133,6 @@ class IDEFrameContext(object):
                 sys.stdout = stdout
 
 
-
 @presentation.render_for(IDEFrameContext)
 def render(self, h, *args):
     pyexpr = var.Var('')
@@ -170,6 +169,7 @@ def render(self, h, *args):
                             h << h.code(value, expand)
 
     return h.root
+
 
 # -----------------------------------------------------------------------------
 
@@ -302,6 +302,7 @@ def render(self, h, *args):
 
     return h.root
 
+
 # -----------------------------------------------------------------------------
 
 class IDEException(object):
@@ -329,6 +330,7 @@ class IDEException(object):
             tb = tb.tb_next
 
         frame.expanded = True  # The last frame will be displayed expanded
+
 
 @presentation.render_for(IDEException)
 def render(self, h, comp, *args):
@@ -381,27 +383,29 @@ def render(self, h, comp, *args):
 def render(self, h, *args):
     return h.li('Exception', yuiConfig='{ "labelStyle": "ygtvlabel exception" }')
 
+
 # -----------------------------------------------------------------------------
 
 # WSGI vars not to display
 wsgi_hide_vars = (
-                    'paste.config', 'wsgi.errors', 'wsgi.input',
-                    'wsgi.multithread', 'wsgi.multiprocess',
-                    'wsgi.run_once', 'wsgi.url_scheme'
-                   )
+    'paste.config', 'wsgi.errors', 'wsgi.input',
+    'wsgi.multithread', 'wsgi.multiprocess',
+    'wsgi.run_once', 'wsgi.url_scheme'
+)
 
 # Concurrent env. type
 process_combos = {
-                    # (multiprocess, multithread, run_once)
-                    (0, 0, 0): 'Non-concurrent server',
-                    (0, 1, 0): 'Multithreaded',
-                    (1, 0, 0): 'Multiprocess',
-                    (1, 1, 0): 'Multi process AND threads (?)',
-                    (0, 0, 1): 'Non-concurrent CGI',
-                    (0, 1, 1): 'Multithread CGI (?)',
-                    (1, 0, 1): 'CGI',
-                    (1, 1, 1): 'Multi thread/process CGI (?)',
-                   }
+    # (multiprocess, multithread, run_once)
+    (0, 0, 0): 'Non-concurrent server',
+    (0, 1, 0): 'Multithreaded',
+    (1, 0, 0): 'Multiprocess',
+    (1, 1, 0): 'Multi process AND threads (?)',
+    (0, 0, 1): 'Non-concurrent CGI',
+    (0, 1, 1): 'Multithread CGI (?)',
+    (1, 0, 1): 'CGI',
+    (1, 1, 1): 'Multi thread/process CGI (?)',
+}
+
 
 # HTML view of a WebOb request, for the IDE
 # -----------------------------------------
