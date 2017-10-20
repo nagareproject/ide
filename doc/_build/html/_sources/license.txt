@@ -1,5 +1,0 @@
-Nagare IDE license
-==================
-
-.. include:: ../LICENSE.txt
-

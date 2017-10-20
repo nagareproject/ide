@@ -15,4 +15,4 @@ dist
 .git
 nbproject
 build
-docs/_build
+doc/_build
