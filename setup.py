@@ -16,7 +16,7 @@ VERSION = '0.2.1'
 
 # -----------------------------------------------------------------------------
 
-f = open(os.path.join(os.path.dirname(__file__), 'docs', 'features.txt'))
+f = open(os.path.join(os.path.dirname(__file__), 'README.rst'))
 long_description = f.read()
 f.close()
 
@@ -26,22 +26,7 @@ setup(
     author='Alain Poirier',
     author_email='alain.poirier at net-ng.com',
     description='Nagare Web IDE',
-    long_description=textwrap.dedent("""
-    Description
-    ^^^^^^^^^^^
-
-    %s
-
-    Installation
-    ============
-
-    For a standard installation, read the ``docs/README.txt`` document.
-
-    This document also describes how to install the
-    latest development version from the `Github repository <https://github.com/nagareproject/ide>`_
-
-    The full documentation with screenshots is available at http://www.nagare.org/trac/wiki/NagareIde
-    """) % long_description,
+    long_description=long_description,
     license='BSD',
     keywords='web nagare ide bespin ajax comet traceback yui',
     url='http://www.nagare.org',
@@ -50,7 +35,8 @@ setup(
     include_package_data=True,
     package_data={'': ['*.cfg']},
     zip_safe=False,
-    install_requires=('Pygments==1.1', 'nagare'),
+    install_requires=('Pygments', 'nagare'),
+    extras_require={'doc': ('sphinx', 'sphinx_rtd_theme<0.3')},
     namespace_packages=('nagare', 'nagare.ide',),
     entry_points="""
     [nagare.applications]
