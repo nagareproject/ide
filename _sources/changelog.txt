@@ -1,26 +1,34 @@
 Nagare IDE Changelog
 ====================
 
+0.2.1
+-----
+
+- Project only hosted on Github now
+- Documentation served as github.io pages
+- Documentation generated with Sphinx
+- Nagare 0.5
+
 0.2.0
 -----
 
 New features
 ~~~~~~~~~~~~
 
-  - Mercurial migration (http://hg.nagare.org and http://bitbucket.org/nagare mirror)
-  - new site, examples and documentation design
+- Mercurial migration
+- New site, examples and documentation design
 
 Changes
 ~~~~~~~
 
-  - A renderer can create an asynchronous renderer:
-    ``comp.render(xhtml.AsyncRenderer())`` => ``comp.render(h.AsyncRenderer())``
-  - unused examples removed
+- A renderer can create an asynchronous renderer:
+  ``comp.render(xhtml.AsyncRenderer())`` => ``comp.render(h.AsyncRenderer())``
+- Unused examples removed
 
 Fixed bugs
 ~~~~~~~~~~
-  - #1502: incorrect ``memory`` sessions manager
 
+- #1502: incorrect ``memory`` sessions manager
 
 0.1.0
 -----
