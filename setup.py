@@ -24,7 +24,7 @@ setup(
     name='nagare.ide',
     version=VERSION,
     author='Alain Poirier',
-    author_email='alain.poirier at net-ng.com',
+    author_email='alain.poirier@net-ng.com',
     description='Nagare Web IDE',
     long_description=long_description,
     license='BSD',
@@ -35,7 +35,7 @@ setup(
     include_package_data=True,
     package_data={'': ['*.cfg']},
     zip_safe=False,
-    install_requires=('Pygments', 'nagare'),
+    install_requires=('Pygments', 'nagare>=0.5.0'),
     extras_require={'doc': ('sphinx', 'sphinx_rtd_theme<0.3')},
     namespace_packages=('nagare', 'nagare.ide',),
     entry_points="""
